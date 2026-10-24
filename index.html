@@ -1,0 +1,1149 @@
+<!doctype html>
+<html lang="en-GB"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Subject Finder · College Access Program</title>
+<meta name="description" content="A 15-minute assessment for Class 9 to 12 students that shows which subjects and degree directions are worth exploring, and why.">
+<style>@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300..700&family=Instrument+Serif:ital@0;1&display=swap");
+/* CAP Subject Finder · v0.9
+   Same design language as the student fairs page and the Options After subject pages.
+   Everything is scoped under #capf so it can sit inside any WordPress theme. */
+
+#capf{
+  --ground:#B7CCE7; --pale:#DBE6F3;
+  --navy:#24325C; --navy-2:#3A4B7D;
+  --paper:#FFFFFF; --cream:#F7F4EC; --field:#FAF9F5;
+  --ink:#1D2542; --muted:#59637F; --line:#DFE4EE; --line-strong:#B7C2D8;
+  --accent:#B4613C; --accent-ink:#8C4424; --accent-soft:#F6E4D9;
+  --ok:#2B7651; --ok-soft:#DDEFE5;
+  --sans:"Inter","Helvetica Neue",Helvetica,Arial,sans-serif;
+  --serif:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --top:calc(var(--site-header,0px) + var(--wp-admin-bar-offset,0px));
+  background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.55;
+  -webkit-font-smoothing:antialiased;color-scheme:light;text-align:left;overflow-x:clip;min-height:100vh;position:relative
+}
+#capf *,#capf *::before,#capf *::after{box-sizing:border-box;margin:0;padding:0}
+#capf h1,#capf h2,#capf h3{font-family:var(--sans);font-weight:500;color:var(--navy);line-height:1.15;text-wrap:balance}
+#capf ul,#capf ol{list-style:none}
+#capf a{color:inherit}
+#capf button{background:none;border:0;border-radius:0;font:inherit;color:inherit;cursor:pointer;text-align:inherit;line-height:inherit}
+#capf input{font:inherit;color:var(--ink)}
+#capf :focus-visible{outline:2.5px solid var(--accent);outline-offset:2px}
+#capf [hidden]{display:none!important}
+#capf em.s{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:0;font-size:1.12em;line-height:.9}
+#capf small{font-weight:500;font-size:.82em;color:var(--muted);text-transform:none;letter-spacing:0}
+
+/* ── top bar ── */
+#capf .capf-top{position:sticky;top:var(--top);z-index:20;background:var(--navy);color:#fff}
+#capf .capf-top-in{max-width:1080px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:16px;min-height:56px}
+#capf .brand{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0}
+#capf .brand img{height:26px;width:auto;display:block;filter:brightness(0) invert(1)}
+#capf .brand span{font-weight:600;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--pale)}
+#capf .prog{flex:1;min-width:0;display:flex;align-items:center;justify-content:flex-end;gap:14px;font-size:12.5px;color:var(--pale)}
+#capf .prog b{color:#fff;font-weight:600;margin-left:4px}
+#capf #capf-round{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#capf #capf-left{white-space:nowrap;background:var(--accent);color:#fff;font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+#capf #capf-left:empty{display:none}
+#capf .track{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(255,255,255,.12)}
+#capf #capf-bar{height:100%;background:var(--accent);width:0;transition:width .35s ease}
+
+/* ── layout ── */
+#capf #capf-main{max-width:1080px;margin:0 auto;padding:36px 20px 72px}
+#capf #capf-main:not([data-screen="intro"]):not([data-screen="result"]){max-width:760px}
+#capf .eyebrow{font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--navy)}
+#capf .tag{display:inline-flex;align-items:center;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.08em;background:var(--navy);color:#fff;padding:4px 9px;line-height:1.3}
+#capf .tag.acc{background:var(--accent)}
+#capf .lede{font-size:17px;color:var(--navy);max-width:60ch;margin-top:14px}
+#capf .hint{font-size:13px;color:var(--muted);margin-top:8px}
+#capf .f-l{display:block;font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin-bottom:10px}
+#capf .count{font-size:13px;color:var(--muted);margin-top:14px;font-weight:500}
+
+/* buttons, pills */
+#capf .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.07em;background:var(--navy);color:#fff;border:2px solid var(--navy);border-radius:6px;padding:13px 20px;text-decoration:none;line-height:1.2;transition:background .15s,color .15s,transform .15s;text-align:center}
+#capf .btn:hover:not(:disabled){background:var(--navy-2);border-color:var(--navy-2)}
+#capf .btn:active:not(:disabled){transform:translateY(1px)}
+#capf .btn:disabled{opacity:.35;cursor:default}
+#capf .btn.outline{background:transparent;color:var(--navy)}
+#capf .btn.outline:hover:not(:disabled){background:var(--navy);color:#fff}
+#capf .btn.accent{background:var(--accent);border-color:var(--accent)}
+#capf .btn.accent:hover:not(:disabled){background:var(--accent-ink);border-color:var(--accent-ink)}
+#capf .btn.small{font-size:11.5px;padding:8px 12px;border-width:1.5px}
+#capf .link{font-weight:600;font-size:13px;color:var(--navy);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1.5px}
+#capf .link:hover{color:var(--accent)}
+#capf .seg{display:flex;flex-wrap:wrap;gap:8px}
+#capf .pill{display:inline-flex;align-items:center;font-weight:500;font-size:14px;background:var(--paper);color:var(--navy);border:1.5px solid var(--line-strong);border-radius:6px;padding:9px 13px;line-height:1.3;transition:background .15s,color .15s,border-color .15s;text-align:left}
+#capf .pill:hover{border-color:var(--navy)}
+#capf .pill[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff}
+
+/* ── intro ── */
+#capf .intro{display:grid;gap:28px;align-items:start}
+#capf .aud{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:22px}
+#capf .aud .for{background:var(--navy);color:#fff;font-weight:600;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;padding:5px 10px}
+#capf .aud .sub{font-weight:600;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--navy)}
+#capf .hero-h{font-weight:400;font-size:clamp(42px,7vw,76px);letter-spacing:-.03em;line-height:1;color:var(--navy)}
+#capf .hero-h.sm{font-size:clamp(30px,4.6vw,48px);line-height:1.06}
+#capf .hero-ctas{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+#capf .hchips{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:22px;font-size:13px;color:var(--navy);font-weight:500}
+#capf .hchips span::before{content:"";display:inline-block;width:6px;height:6px;background:var(--accent);margin-right:7px;vertical-align:2px}
+#capf .note{background:var(--paper);padding:24px 22px;border-top:4px solid var(--accent)}
+#capf .note h3{font-size:22px;font-weight:500;letter-spacing:-.01em;margin:14px 0 16px}
+#capf .note dl{display:grid;gap:14px}
+#capf .note dl div{display:grid;gap:3px;padding-top:13px;border-top:1px solid var(--line)}
+#capf .note dt{font-weight:600;font-size:11.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-ink)}
+#capf .note dd{font-size:14.5px;color:var(--ink);line-height:1.5}
+@media (min-width:900px){#capf .intro{grid-template-columns:1.1fr .9fr;gap:56px}#capf .intro-l{padding-top:20px}}
+
+/* ── question screens ── */
+#capf .q-head{margin-bottom:26px}
+#capf .q-h{font-weight:400;font-size:clamp(28px,4.6vw,40px);letter-spacing:-.02em;line-height:1.08;margin-top:10px}
+#capf .q-lede{font-size:16px;color:var(--navy);margin-top:10px;max-width:58ch}
+#capf .field{background:var(--paper);padding:18px 18px 20px;margin-bottom:12px}
+#capf .q-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:26px;position:sticky;bottom:0;padding:12px 0;background:linear-gradient(to top,var(--ground) 70%,rgba(183,204,231,0))}
+#capf .q-nav .btn{min-width:120px}
+
+/* class tiles */
+#capf .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#capf .tile{border:1.5px solid var(--line-strong);padding:14px;display:grid;gap:2px;background:var(--field);transition:border-color .15s,background .15s}
+#capf .tile b{font-family:var(--serif);font-weight:400;font-size:28px;color:var(--navy);line-height:1}
+#capf .tile span{font-size:12.5px;color:var(--muted)}
+#capf .tile:hover{border-color:var(--navy)}
+#capf .tile.on{background:var(--navy);border-color:var(--navy)}
+#capf .tile.on b,#capf .tile.on span{color:#fff}
+@media (min-width:640px){#capf .tiles{grid-template-columns:repeat(4,1fr)}}
+
+/* school search */
+#capf .school{position:relative}
+#capf input[type=text],#capf input[type=email]{width:100%;border:1.5px solid var(--line-strong);background:var(--field);padding:12px 13px;font-size:15px;border-radius:4px}
+#capf input[type=text]:focus,#capf input[type=email]:focus{border-color:var(--navy);outline:none;background:#fff}
+#capf .sugg{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid var(--navy);z-index:5;max-height:300px;overflow:auto;box-shadow:0 12px 28px rgba(36,50,92,.18)}
+#capf .sugg button{display:block;width:100%;padding:10px 13px;font-size:14px;border-bottom:1px solid var(--line)}
+#capf .sugg button:hover,#capf .sugg button:focus{background:var(--pale)}
+#capf .sugg .sugg-add{color:var(--accent-ink);font-weight:600;border-bottom:0}
+#capf .addschool{margin-top:10px;background:var(--cream);padding:14px}
+#capf .addschool p{font-size:13.5px;color:var(--navy);margin-bottom:10px}
+#capf .row2{display:grid;gap:8px;margin-bottom:10px}
+@media (min-width:560px){#capf .row2{grid-template-columns:2fr 1fr}}
+#capf .note-ok{font-size:13.5px;color:var(--ok);margin-top:8px;font-weight:500}
+
+/* slider */
+#capf .range{width:100%;accent-color:var(--accent);height:28px}
+#capf .range-k{display:flex;justify-content:space-between;font-size:12px;color:var(--muted)}
+
+/* reveal */
+#capf .reveal{background:var(--navy);color:#fff;padding:34px 26px;margin-top:20px}
+#capf .reveal .q-h{color:#fff;margin:16px 0 14px}
+#capf .reveal p{color:var(--pale);font-size:16px;max-width:52ch;margin-bottom:8px}
+#capf .reveal .btn{margin-top:18px;background:#fff;border-color:#fff;color:var(--navy)}
+#capf .reveal .btn:hover{background:var(--pale);border-color:var(--pale)}
+
+/* round 1 · city */
+#capf .city{display:grid;grid-template-columns:1fr;gap:8px}
+#capf .ccard{position:relative;display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:center;background:var(--paper);padding:14px 40px 14px 14px;font-size:14.5px;line-height:1.4;color:var(--ink);border:1.5px solid transparent;transition:border-color .15s,background .15s,transform .15s}
+#capf .ccard:hover{border-color:var(--navy)}
+#capf .ccard .ci{width:38px;height:38px;fill:none;stroke:var(--navy);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;background:var(--pale);padding:5px}
+#capf .ccard.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+#capf .ccard.on .ci{stroke:#fff;background:var(--navy-2)}
+#capf .ccard i{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-style:normal;font-family:var(--serif);font-size:26px;color:#F2B898}
+@media (min-width:640px){#capf .city{grid-template-columns:1fr 1fr}}
+
+/* round 2 · pairs */
+#capf .pair{display:grid;gap:10px;align-items:stretch}
+#capf .popt{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--paper);padding:22px 20px;font-size:17px;font-weight:500;color:var(--navy);line-height:1.35;border:2px solid transparent;min-height:96px;transition:border-color .12s,transform .12s,background .12s;animation:capf-in .25s ease both}
+#capf .popt:hover{border-color:var(--navy)}
+#capf .popt:active{transform:scale(.99);background:var(--navy);color:#fff}
+#capf .popt+.or+.popt{animation-delay:.05s}
+#capf .k{display:inline-grid;place-items:center;width:28px;height:28px;border:1.5px solid var(--line-strong);font-size:12px;font-weight:700;color:var(--muted);border-radius:4px;flex-shrink:0}
+#capf .or{text-align:center;font-family:var(--serif);font-style:italic;font-size:22px;color:var(--navy);line-height:1}
+#capf .pair-foot{display:flex;justify-content:space-between;margin-top:14px}
+#capf .dots{display:flex;gap:4px;margin-top:22px;flex-wrap:wrap}
+#capf .dots i{width:calc((100% - 92px)/24);min-width:6px;height:4px;background:rgba(36,50,92,.18)}
+#capf .dots i.on{background:var(--navy)}
+@media (min-width:700px){#capf .pair{grid-template-columns:1fr auto 1fr}#capf .popt{min-height:150px;grid-template-columns:1fr;align-content:space-between}}
+@keyframes capf-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#capf *{animation:none!important;transition:none!important}}
+
+/* round 3 · grid */
+#capf .tray{display:flex;flex-wrap:wrap;gap:6px;background:var(--paper);padding:12px;min-height:56px;margin-bottom:12px;position:sticky;top:calc(var(--top) + 56px);z-index:4;box-shadow:0 6px 14px rgba(36,50,92,.08)}
+#capf .tray-done{font-size:13px;color:var(--muted);align-self:center}
+#capf .chip{display:inline-flex;align-items:center;font-size:13px;font-weight:600;background:var(--navy);color:#fff;padding:7px 10px;border-radius:4px;touch-action:none;user-select:none;-webkit-user-select:none;line-height:1.2;transition:transform .1s,box-shadow .1s}
+#capf .chip.sel{background:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);transform:translateY(-1px)}
+#capf .chip.lifting{opacity:.35}
+#capf .chip.ghost{position:fixed;z-index:50;transform:translate(-50%,-60%) rotate(-2deg);box-shadow:0 10px 24px rgba(0,0,0,.25);background:var(--accent)}
+#capf .gridwrap{display:grid;grid-template-columns:22px 1fr;grid-template-areas:"y g" ". x" ". xt";column-gap:6px}
+#capf .g-ylab{grid-area:y;writing-mode:vertical-rl;transform:rotate(180deg);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);text-align:center}
+#capf .grid9{grid-area:g;display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
+#capf .cell{background:rgba(255,255,255,.55);min-height:92px;padding:6px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:4px;border:1.5px dashed transparent;transition:background .12s,border-color .12s;cursor:pointer;position:relative}
+#capf .cell.sweet{background:var(--paper)}
+#capf .cell.sweet::after{content:"Sweet spot";position:absolute;right:6px;bottom:4px;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+#capf .cell.hover,#capf .skipzone.hover{border-color:var(--accent);background:var(--accent-soft)}
+#capf .cell-l{width:100%;font-size:10.5px;color:var(--muted);line-height:1.1}
+#capf .cell-l b{font-weight:600}
+#capf .cell-l:empty{display:none}
+#capf .cell .chip{font-size:11.5px;padding:5px 7px}
+#capf .g-xlab{grid-area:x;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-top:6px;font-size:11.5px;font-weight:600;color:var(--navy);text-align:center}
+#capf .g-xt{grid-area:xt;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);text-align:center;margin-top:2px}
+#capf .skipzone{margin-top:12px;background:rgba(255,255,255,.4);border:1.5px dashed var(--line-strong);padding:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;cursor:pointer;min-height:48px}
+#capf .skipzone>span{font-size:12px;font-weight:600;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-right:6px}
+#capf .skipzone .chip{background:var(--muted)}
+#capf .chips .pill{font-size:14px}
+@media (min-width:700px){#capf .cell{min-height:110px}#capf .cell-l{font-size:11.5px}}
+
+/* round 4 · values */
+#capf .vals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#capf .vcard{position:relative;background:var(--paper);padding:16px 14px 16px 14px;font-size:14.5px;font-weight:500;color:var(--navy);line-height:1.35;border:1.5px solid transparent;min-height:72px;text-align:left}
+#capf .vcard:hover{border-color:var(--navy)}
+#capf .vcard i{font-style:normal;font-family:var(--serif);font-size:22px;line-height:1;margin-right:8px;color:#F2B898}
+#capf .vcard.top{background:var(--navy);color:#fff}
+#capf .vcard.least{background:var(--cream);color:var(--muted);border-color:var(--line-strong);text-decoration:line-through;text-decoration-color:var(--accent)}
+#capf .vcard.least i{color:var(--accent)}
+@media (min-width:640px){#capf .vals{grid-template-columns:repeat(3,1fr)}}
+
+/* round 5 · puzzles */
+#capf .puzzle{background:var(--paper);padding:22px 18px}
+#capf .pz-q{font-size:18px;font-weight:500;color:var(--navy);margin:12px 0 16px;line-height:1.4}
+#capf .pz-fig{background:var(--field);padding:16px;display:flex;justify-content:center;margin-bottom:14px}
+#capf .pz-draw{width:100%;max-width:320px;height:auto}
+#capf .pz-fig .pz-shape{width:auto;height:72px}
+#capf .pz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+#capf .pz-o{display:flex;align-items:center;gap:10px;border:1.5px solid var(--line-strong);padding:12px;font-size:15px;color:var(--ink);background:#fff;min-height:56px;transition:border-color .12s,background .12s}
+#capf .pz-o:hover{border-color:var(--navy);background:var(--field)}
+#capf .pz-opts.visual .pz-o{flex-direction:column;justify-content:center;gap:8px;min-height:110px}
+#capf .pz-opts.visual .pz-o .k{align-self:flex-start}
+#capf .pz-opts.visual .pz-shape{height:58px;width:auto;max-width:100%}
+#capf .pz-opts.visual span:not(.k){font-size:13px;font-weight:500;color:var(--navy)}
+#capf .pz-shape rect{fill:var(--navy);stroke:#fff;stroke-width:1.5}
+#capf .pz-paper{fill:#fff;stroke:var(--navy);stroke-width:1.6}
+#capf .pz-shape .pz-paper{fill:#fff}
+#capf .pz-shape rect.pz-paper{fill:#fff;stroke:var(--navy);stroke-width:1.6}
+#capf .pz-fold{stroke:var(--accent);stroke-width:1.5;stroke-dasharray:4 3}
+#capf .pz-arrow{fill:none;stroke:var(--muted);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+#capf .pz-hole{fill:var(--navy)}
+#capf .pz-cap{font-size:9px;fill:var(--muted);font-family:var(--sans)}
+#capf .pz-line{fill:none;stroke:var(--navy);stroke-width:1.6}
+#capf .pz-slicefill{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.8}
+#capf .cb-top{fill:#fff;stroke:var(--navy);stroke-width:1.2;stroke-linejoin:round}
+#capf .cb-left{fill:var(--pale);stroke:var(--navy);stroke-width:1.2;stroke-linejoin:round}
+#capf .cb-right{fill:#9FB6D6;stroke:var(--navy);stroke-width:1.2;stroke-linejoin:round}
+@media (min-width:640px){#capf .pz-opts{grid-template-columns:repeat(4,1fr)}#capf .pz-opts:not(.visual){grid-template-columns:1fr 1fr}}
+
+/* round 6 */
+#capf .mrow{display:grid;gap:6px;padding:10px 0;border-top:1px solid var(--line)}
+#capf .mrow:first-of-type{border-top:0;padding-top:0}
+#capf .mrow>span{font-size:13.5px;font-weight:600;color:var(--navy)}
+#capf .mrow .pill{font-size:13px;padding:7px 10px}
+@media (min-width:640px){#capf .mrow{grid-template-columns:130px 1fr;align-items:center}}
+
+/* ── results ── */
+#capf .res-hero{display:grid;gap:24px;margin-bottom:36px}
+#capf .res-hero .tag{margin-bottom:16px}
+#capf .cert{background:var(--paper);padding:18px;align-self:end}
+#capf .cert-line{position:relative;height:10px;background:linear-gradient(90deg,var(--pale),var(--navy));margin:14px 6px 8px}
+#capf .cert-line i{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;transform:translate(-50%,-50%);border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+#capf .cert-line i.b{background:var(--muted)}
+#capf .cert-line i.a{background:var(--accent)}
+#capf .dotb,#capf .dota{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px}
+#capf .dotb{background:var(--muted)}#capf .dota{background:var(--accent)}
+@media (min-width:900px){#capf .res-hero{grid-template-columns:1.6fr 1fr;gap:40px}}
+#capf .band-in{margin-top:44px}
+#capf .sec-h{font-weight:400;font-size:clamp(26px,3.6vw,36px);letter-spacing:-.02em;margin-bottom:16px}
+#capf .top3{display:grid;gap:10px}
+@media (min-width:860px){#capf .top3{grid-template-columns:repeat(3,1fr)}}
+#capf .mcard,#capf .dcard{background:var(--paper);padding:20px;display:flex;flex-direction:column;gap:10px}
+#capf .mcard:first-child,#capf .dcard:first-child{border-top:4px solid var(--accent)}
+#capf .m-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+#capf .m-n{font-family:var(--serif);font-size:30px;color:var(--accent);line-height:1}
+#capf .m-pct{font-family:var(--serif);font-size:38px;color:var(--navy);line-height:1}
+#capf .m-pct small{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-left:4px}
+#capf .mcard h3,#capf .dcard h3{font-size:23px;letter-spacing:-.01em}
+#capf .m-line{font-size:14px;color:var(--muted)}
+#capf .m-why{display:grid;gap:6px;flex:1}
+#capf .m-why li{font-size:14px;line-height:1.45;padding-left:14px;position:relative}
+#capf .m-why li::before{content:"";position:absolute;left:0;top:.6em;width:6px;height:6px;background:var(--accent)}
+#capf .m-flag{font-size:13px;background:var(--accent-soft);color:var(--accent-ink);padding:9px 11px;line-height:1.45}
+#capf .mcard .btn,#capf .dcard .btn{align-self:flex-start;margin-top:4px}
+#capf .wild{margin-top:10px;background:var(--cream);padding:20px;display:grid;gap:8px;justify-items:start}
+#capf .wild h3{font-size:22px}
+#capf .wild h3 small{font-size:13px;font-weight:600;margin-left:6px}
+#capf .wild p{font-size:14.5px;max-width:70ch}
+#capf .combos{display:grid;gap:10px;margin-top:16px}
+@media (min-width:820px){#capf .combos{grid-template-columns:1fr 1fr}}
+#capf .combo{background:var(--paper);padding:20px;display:grid;gap:12px;align-content:start}
+#capf .c-line{font-size:14px;color:var(--muted)}
+#capf .c-subj{display:flex;flex-wrap:wrap;gap:6px}
+#capf .c-subj li{background:var(--navy);color:#fff;font-size:13px;font-weight:600;padding:6px 10px}
+#capf .c-subj li:first-child{background:var(--pale);color:var(--navy)}
+#capf .ledger{display:grid;gap:2px;margin-top:4px}
+#capf .lg{display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;font-size:13.5px;padding:7px 0;border-top:1px solid var(--line)}
+#capf .lg i{width:10px;height:10px}
+#capf .lg b{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase}
+#capf .lg.open i{background:var(--ok)}#capf .lg.open b{color:var(--ok)}
+#capf .lg.flag i{background:var(--accent)}#capf .lg.flag b{color:var(--accent-ink)}
+#capf .lg.closed i{background:var(--line-strong)}#capf .lg.closed{color:var(--muted)}#capf .lg.closed b{color:var(--muted)}
+#capf .st{font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:4px 7px;text-align:right}
+#capf .st.open{background:var(--ok-soft);color:var(--ok)}
+#capf .st.flag{background:var(--accent-soft);color:var(--accent-ink)}
+#capf .st.closed{background:var(--line);color:var(--muted)}
+#capf .d-dl{display:grid;gap:8px;flex:1}
+#capf .d-dl div{border-top:1px solid var(--line);padding-top:7px}
+#capf .d-dl dt{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+#capf .d-dl dd{font-size:14px}
+#capf .d-links{display:grid;gap:6px}
+#capf .family{background:var(--navy);color:#fff;padding:20px;display:grid;gap:10px;justify-items:start}
+#capf .family .tag{background:var(--accent)}
+#capf .family p{color:var(--pale);font-size:15.5px;max-width:70ch}
+#capf .shape-g{display:grid;gap:14px}
+#capf .shape-g>div{background:var(--paper);padding:20px}
+#capf .shape-hex{display:grid;gap:12px;justify-items:center;text-align:center}
+#capf .shape-hex p{font-size:14.5px;max-width:42ch}
+#capf .hex{width:100%;max-width:300px;height:auto}
+#capf .h-ring{fill:none;stroke:var(--line-strong);stroke-width:1}
+#capf .h-shape{fill:rgba(180,97,60,.22);stroke:var(--accent);stroke-width:2;stroke-linejoin:round}
+#capf .h-l{font-family:var(--sans);font-size:11px;font-weight:600;fill:var(--navy)}
+#capf .dbars{display:grid;gap:9px;margin-bottom:18px}
+#capf .db{display:grid;grid-template-columns:1fr;gap:4px;font-size:13.5px}
+#capf .db i{display:block;height:8px;background:var(--pale)}
+#capf .db b{display:block;height:100%;background:var(--accent)}
+#capf .mini{display:grid;gap:12px;border-top:1px solid var(--line);padding-top:14px}
+#capf .mini p{font-size:14px}
+#capf .mini .f-l{margin-bottom:3px;color:var(--muted)}
+@media (min-width:860px){#capf .shape-g{grid-template-columns:1fr 1.2fr}#capf .db{grid-template-columns:200px 1fr;align-items:center}}
+#capf .report{display:grid;gap:10px}
+#capf .rep-l,#capf .rep-r{background:var(--paper);padding:22px;display:grid;gap:10px;align-content:start}
+#capf .rep-l{background:var(--navy);color:#fff}
+#capf .rep-l .sec-h{color:#fff;margin-bottom:0}
+#capf .rep-l .q-lede{color:var(--pale);margin-top:0}
+#capf .rep-l .f-l{color:var(--pale);margin:8px 0 0}
+#capf .rep-l .f-l small{color:var(--pale);opacity:.8}
+#capf .rep-l input{background:#fff}
+#capf .rep-l .btn{justify-self:start;margin-top:6px}
+#capf .rep-r h3{font-size:20px}
+#capf .rep-r .btn{justify-self:start}
+#capf .consent{display:grid;grid-template-columns:20px 1fr;gap:8px;font-size:13px;line-height:1.45;color:var(--ink);align-items:start}
+#capf .consent input{width:18px;height:18px;margin-top:1px;accent-color:var(--navy)}
+@media (min-width:860px){#capf .report{grid-template-columns:1.1fr 1fr}}
+#capf .nextsteps{background:var(--paper);padding:22px}
+#capf .nextsteps ol{display:grid;gap:12px;counter-reset:n;margin-bottom:18px}
+#capf .nextsteps li{counter-increment:n;display:grid;grid-template-columns:34px 1fr;font-size:15px;line-height:1.45}
+#capf .nextsteps li::before{content:counter(n);font-family:var(--serif);font-size:28px;color:var(--accent);line-height:1}
+#capf .nextsteps a{font-weight:600;color:var(--navy);text-underline-offset:3px}
+
+/* footer */
+#capf .capf-foot{max-width:1080px;margin:0 auto;padding:0 20px 40px;font-size:12.5px;color:var(--navy);display:flex;flex-wrap:wrap;gap:6px 18px;justify-content:space-between}
+@media print{#capf .capf-top,#capf .q-nav{display:none}}
+@media (max-width:560px){#capf .brand span{display:none}#capf .prog{font-size:12px;gap:8px}}
+#capf .nextsteps li>span{min-width:0}
+
+html,body{margin:0;background:#B7CCE7}</style></head><body>
+<div id="capf" data-tool="subject-finder">
+  <header class="capf-top">
+    <div class="capf-top-in">
+      <a class="brand" href="https://collegeaccessprogram.in/" aria-label="College Access Program"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAocAAAECCAYAAACMgX0UAABSBUlEQVR42u29f4xdVZbv92naV2mnRPkq2B5KgqJND/WsMcWLQc9o2vUIfspgofHIyCL2yO2WR0ImRsLkDwiC7oY/oGkQgUTBKPAatTJ+eNAYEWtQ8+KYSYYWzyU1jsARBQmpVuNQIBXB8HJdjGV1rjLKH2sd6lK+P/Y5Z597z7n3+5GsW7Zv3bv3PvvHd6+91trf+f6mHyKGlhqw2n8e89fLgXX+81XAev95XZvfPwd84T9/BnwMXACW1LRCCCHEcLJKTTB0TLnQu9FfJ4Ef+Ou4i8Ram99r+r+vfG2lAXwAvAV8CJyQUBRCCCGGi+/Icjg07AH2AdcAa4CJDiIwFolQfB44puYXQgghhgNZDoeHfcCOPn5fHbgZs0i+DSzqEQghhBDV5zI1gchBDTuqFkIIIYTEoRBCCCGEkDgUQgghhBASh0IIIYQQQuJQiFBqagIhhBBC4lCIhKaaQAghhJA4FEIIIYQQEodCCCGEEELiUIjOyOdQCCGEkDgU4hvkcyiEEEJIHAohhBBCCIlDIYQQQgghcShEF+RzKIQQQkgcCvEN8jkUQgghJA6FEEIIIYTEoRBCCCGEkDgUogvyORRCCCEkDoX4BvkcCiGEEBKHQgghhBBC4lAIIYQQQkgcCtEF+RwKIYQQEodCfIN8DoUQQgiJQyGEEEIIIXEohBBCCCEkDoXoQm1E6zwBjOvxCyGEkDgsz+K8B/g18O/8Zy3Ug2HUfA7HgUeA3wKngEMuFIUQQohKs6rCZZ8A7vFFue7/Numvx/RoRcHC8IEVfe8x4DrgSWBRTSSEEKKqVNVyuBV4FXioZXFOxOHTvmgrtYooglobYYj/fMj75VY1kxBCCInD/grDF4CbO/z/JGbFOSiB2HfRNOwkR8mPrBCGrcwAr2AuDup/QgghJA4LXpgTYbjRF95Oi28ds+5IIPaPYfc5TI6SHwp47wTwootI+cAKIYSQOCxoYb4deAuYDhR8iQXxEQlEEUkYhvalmm9QHgF+jgJVhBBCSBxG53bMEpNW5I1hfmASiCIriY/hQxl+t4lZr1+VQBRCCCFxGG9h3gO87EIvy+/XfWHXEV/xz2rYaPUxrGVskxrmH/sqMKVNihBCiLJT9lQ2B7Gj4bwLao1ly88zwJIefXSGzeewNSo5xmfNAK9h6Zdm1V2GbhNxpf+8DjjnP39eoblmZR3welSpDmJ45t7VQzCmJA4L6hyJMByL+JlJ6hvlohO9FsrkKDmmpW8jFlAlgVjtvjENXIW5u/yA5fyqrScTyQJ2HvgEOAOc9EXu7AA3UzVgLXAtcCNwk7+uaanDysV3Afg98C7wHvAx8GXkOkwAd7YI006cAw73qa22AtsD3vch/cutuwfYNMD+/0IBa2cyppL+mIypduOpU39cHMBzL4qjwPygJ7rvfH/TD8s4AR/yxXmyoM8/PIQC8dfAjgF8bwP4kyFqy6KEYStvAHdrg1K5fnG7/9nWZW5qtuk3rSLqHSyw7iRwus8iMRFgt2GW7HqGz1gA3gfexCzhsfrwViwFVK85fw64oY/r0HM93tPE/OHv79OzfI44pxlZmYm4sU36403Azg79sdllHm56/3vfBdXbEfpjjWVXokHQ8HV84MaDslkOa8AuzGJYL3jQjwMPa4GO+uyaQ1CH5Ci5SN/AHZgP4r9i9K4drGKf2AX8FLg6YF6q9fi3GcwH9RDmS/08xVsSk0X4AGa9Jkf/nvQ/Mz5WnoksEqvYP0S+/ljL2L61lv643fvggzlFYrNE/WqgZbmsZINsl+/C6n34vv3AL1EUaSyqLnLGgWe59NadInfgCpIqN1uBl1zETUfsF0mg3CHg7zEXmiL6Qc3r8EvM4pSkAYshaOq+KD/rG51+JH3XRqr6Qjrpj88SnpYu9LMnfazmuaWqDGL/qjL09ctK1Gl2YVff1fv4vdu9oyqKVJNWkjS9n+z3P6Kci9gLwN6C54YkH+sDPg/F3OwcxI5qdxTcVjOYZbUokVumhVvkW+NfoVh/vqQ/vuAblrT9sQwbkM/K8MDKIg63+OQyOYAOuwP4FbBB43ckWZmupp8LUGJ50V3M5VzEpvvUH+qYxfpZ4pxkJJudx/o4p057+R/IKBDPVWThFtk3Ki97f+zHPDuNnULur9imYqwsBSmDOJxwlT89wDLc7AJRR8yjt6v/OdkSXMdst6eIazUS2UlcWwaxUZ3BAuXyWt8Oep8eG0AdDvmCnLYO6wI/X1SP/cRJSZdl0zWIE6E8XChLXx+0OJzAovamB1yOZGL+rRbpzFRtVz8O/DXFB5+EMKPNSSk2N1uxE4xB7d7r2DH2z3OKs2fpvxW8tQ7PUoy7hCyH1Ztj91B8gGk3EreNrSnG0KAphc/hqgF3nHtYjp4rA5O+SD+E8tANuxB4AEufUBZu9vHwuBbBgbAas+D2ip7sxByWz3Cl6B9L+Xk14Mdki2LegkWAZil/A/jAX78CrgCuISxCu9P4ei/yPCrLYbb+mDzPVrL+27kUZbiS7HEETSztU2t/rAPXZ/i8OnY6mUQ0x9qArBzzMdr5Kywn6sAZpDjcT7G55LIyg/kb7aX/echEfzYlz1G+QJDE6nMOO9ZUv+v/ZmEmw+L1Kt1TuUwB9wK3En5CUsesb2lyYSZJ/tOcwjSAUy6K57BEw+1SaOwB9mH5BUOP2ye9PKF1kM9hPJpYlP3hAZYhyf4wmaE/HgWOs5zjcOVrsgnaFvj5Td/0xd58D7qNC2VQx8pT/nDLyqTvNLZotzpUu/qaC8OdJS1f3UWKgqP6y5aUm4UGlvT4Ll8cuomfeX/vnVjy89CFaQa4JcW4OphS3J7y39nlm+ClLgLsmL/vQf+9ULZ7vUOQz+FwzcW3ky4qec77449ahCEdXk+7ftjrvxfSHjXgDp9bY7RPc9j75KDE4XayH9/0i2nMgiiBmG6wlJUJ3+ntZXD+L6Ebk33qTn21cBxIYeFIFrEXCb/iqunvvZtwq3Dd+0HIe6eA3YH9uuki9S4Xfc3A72j6++/y3w8VKY8Rz5dWlsNqtFNiLQ9dN0/5JuK4b1KaAfVLROKdKfrjdMCYqqXo20PdJy/TOOq5UL/iu2ZRXSaw23D2VqS8dT2yvm4CtwW+dwF4YoVlIw2LmBXxZIpNdIiw2oz5rIbwjpfhbMb2Siyhp1L05TsjPStt0qvRTtsx38BQYfiQ96u0YyrZdD3lYzOEbT3ap5niu4e6Tw5KHL7mk1RVBOLT9OcGABGf5JrEgwwugjPNZDeHBSOI/i1koVbDIzmEYeszDl3MatjRcq/3hFppGjkW4pUC8SH/vBBuCxC58jmMO48MkjRW7BjBn7PYNY4h9b4eOw2MJcBlOYzMIumOJ8ogEF/ELIi67qw6u/oJzMfwYEWE/TuY0/S8ulPfNg53pLBwvBBpMTgNvBX4Wb1cDDYQ5mvYxJIQx4oePk24M/5MgMiVz+FwzMVThFuxn/J+FIPXgI8C33tjRAE+tH1ykNHKyfEEFHu9UyzqmAVxPYomrcKufgJLKLy3AgO46RsmpVDqL9NYqpZeNDBr7mLE7z6BBUbVA+adiS7fHeqf+hHmMxizz76ARdj3qsMYsGkI5xjNxZeK0u2B8+0C5l7RjPS9X2I+5TfRO3XMFxGE9dBbDlcN+PsTJ+1XSRdpNyiS686QQCw1iTCsyr3FH2EWQwnD/rKdsITXnxI391jTP+8DYE2AML28gzisYT5UzYBF7T3iWWkSFoHXA8ZZUs4YIkCUu51uC3zfW4RFGqcRwy9GEGxZfA6HUgesKkEZkiPmX1VEIIJF4MEQ5ziq+MT4S4q93D0mDcxhX0fJ/WWc5Xtee/FeAc9n3ue9r138Ja+0+fnLDp+xwcVlSB1OFLSInSDMOt8rQEE+h3E3H4NgA5Y4PaR8J1hOn1TFesvnsE/MY06sVfBBrGHHKM+5SJQPYnl29VNYwMB2qmFlOIW5VEgY9p8x4AcpBFAR/WneN8etr+1+7rQAraO35THh7YLqcIYwX6863a8mlc9h9efi0P64SEluAYkgROVz2AeSNA/XMPi7lkM55K+Paj4a+A5qHPhJhYRhA/kYDpLLUwirMyW1EFwVuDltYNbHIurwNXA+cH7YnHMjJMtheDutYzlCPLFM5/n5Ar0tfaH98TzZUymVRVjXvI03RGjb5OfPiW9NHQpxmOykZ4B/i0U8lX2RrwOP+OuTxHVYF+FMUB2/VTBn7D8r8QQ5KoQEozRL/pzqAe/5oEBh9SVhKW1qWDBfPxbuUSe5SvGRiGLzReC+SP3xkxIL/TTleiRiG4O5qd1flrYpYxLsJcwX52SFBuNBLJeejpj7zxTmY3hzRcq7gPlonZUlZKCsC3zfYkmfUxqx9fuCF9OvIrS5fA7j94+y9kdtiivAqpKWqzWKuQoWxJoLRBhdC+IgorYmsOjxqhwlz2FRyae10JWCkEjl8yUu/7qSlCO58qzXGKznrIssh8Ox4WpkWC8eIzxZfUh/1UlfRcVhsmOvUhRzIhDHMfP70oj1pUEIw19WSBguSBiWcsxWWRyGjsui56LGkM4xojzPcvOKub5J9nk/uYVqURuQzpT9buUkivlURdqzhuX8+hviXTYvLmW8gsJwr09KWuCqxZqSlmt1RAHcL6Fdhe8Q5aS+4vnXChrTmp8rIg6helft4aLll3RP3SCyLQ5TLr53UI2bTxJheJrRsyZTgeeT5/8HycWSLdx520o+h9VmdeAzzEqjT2NeVEgcwvJVe1URiMk1Qs+OkEDsh1Bbi7kZ7KhImywCD6Kj5LJyIaBPrylx+UMX4w0Fj/vxwPHfbYGXz2G1SbNZyeI7WK/QOjUUrKpQWat21V7NRUwds3wOe6LjosXPlIvtqqSrmQOeIO59tiKusFoKWHQS4VNGcf9FnxfWTlwRWcwOao4ZJhrEPaloROyPVxT0/TH6UK3kbSxx2IHWIJUqRDHjYuY1zJKo6KhsTLQ886pMzLoreTioY5a3sm3umi19rZf4u77AcqxNIT6/yPldsvqEcxg4illkz0V4/Tpif7wm4ziMQS2wHiG8jAW2xGrjUm2AVlWw089TvbuYp7G8jYpWTU+VLIZN7Khyh4Rh6fka8wedDHimeW/2KIrPCLN+jvk4KqIOlxN+TNjtyjT5HMblHMtXMBLhNWZ/XJOhP54hzMVjTUB/jJGBoAn8bgBtLHE4pALxBYbXolTE0VtrHsMqkPgYShiWn+Rmj14pMWrAVsrpHnAucKGrFShwW69p60aD7smP5XM4HII0pD+Oe39McxHAzwjLS/okljEkZHNY1nVP4jCCQNxNdRJlJwLxKcwUfXzIOlXsukxRvQTX8jGsVn89E7jxuNUFUEy3kHFfxNa1LKztjpm+AN7u8N2fp7CCbAVOENdHqgbsCRyfMa7wk+Ww3O10NrA/1oHbfQ0M5WJA360R5s94PsIGpDbsfXJVxcu/iN0h+RTV8kFcg5ngZWEaDmHYkDCsJB9ibgBjPfrZ1cAtkZ/vNHbrw1iPRWnORWw7cbgEvEXY6cmt/p0x55y1wM7A956JJEZFedup6f0xZC2+EfPlDbUehr7nhsD5+sucwrrZ0tZDKRAvG4I6zGIWxI8qVObkiHmP5rFLqNqVeAvYzTgShtXjBPBpQD8bA/YR7+70cR/7iSjt9v2f0Pk4toYFHYSwkbjuGTXMRWYycIz0EqXyOYwr0gbF0cB5e9rHVMyybiXMh/hMhO8desvhZUNSj0XgTuwmlao8rGngacKPZUZhtzqFuQlUSRg+KGFYWZaA3wT27e2E+TKFcCVmcQvp42/2WOjOEnaDVA045GMsxtjakqI9FrCj8W7I57Bcc3FW5jFrdwiHXNDF2nA9FLD+X8BODGIJ8KHtk5cNUV3mvXO8U6EyT7pAPKjd6jfpamaozlHyg6TzmxHlW0SPEZZfrAYciLCY1YCfEH695skeY6vpG6qQ8VfHrPJ5k2JP+VwbGqX8KnH8NWU5LH871YCXUvTHh4hzUcTt2JFyr7XjU+zEIK+wluWwYsxiUcxVsiBOAg/4LmpUmcKuG6xKHsPkKFnCsPqL6MfA64HvT9xBsgrEce83+wMXoTcIizB+jXC3mh0uECdyjNWfEH5LUcPLF0t4iHK3U9M3NGn6469y9Eew07enAzcrv6F7YEsWn0OJw4qQpLmpkg/iJOacfmgEJ8BxXzx2VKTuTZYthk1ZMyrPl27paKQUiGndQcaB51yYhfazowXVIbn7Pa3InfKFfG+KOhwmzGoon8O4c9QghelZ4O9S/M7NmHU5y6brEPDTQGHYIJ4LkCyHFRaI26mWBbHuAvHZirZ5FmE3BfxbX3CrwALwY59gtFANz0J6GrvtIJRpf/8/uEjcyqXBKjW3hmz1cT3noip0nLyCHX/VAutwhDDfw6RsOzDL5F97HSba1GHcx+gef987pHP7OOlCOgT5HA52Lo45nprA44T7Hta8X73V0h+neoypQ8C/8/VyOrBcL6coU6gAH9o+uWqIB8iXmAXxtQqJj7qLj98BL1ZMgKQpaw1Lg/Es1TlKBvkYDrNAfB4LEplM0YdnvP9+xKVRxeNYzrUbUnxmq4XjJdLlJLyIpfSaIfyqsboL1p1YHsLf+3c2/P/GgR94+bPU4SidU4ZkZQ1mgY1FwwVsHp/IWyNv6mPM/7cB1xUwVp4nzNWhiaX3ejFFf6xhLhdJf2x0GFPXYOml6inKveib+pBciaFl3V1AGzd8UzXwNHfDLA6b3onvpFp3Mdd9olkXYdIqKxuo1u02DZZ9DGUxHE7mXSi9klII1bA0MbE2oE3g0QyLQ2IBPZhhQa77WJyJOF4epZgo/kni+mcvuIjNM89OR3j+yU09ic/ekZxzzY6Cxsks4TftHAc2+fNKI+SS/tjaJrWcbRt6c1WaNo85Zlq//0NKwLAeK6+c9O+iWlHMNSyK6x7i5VYrC1MVE4ZNCcORoObi6sEMz7kWsa+96MIgK8cxP7/mAMfLy6QPQjk3oPKOl6j/DRvJ8fLrOdskT9s0WHbRqAIXylKQURCHiUDcTbV8EBOB+Bz5IrnKNLlVTRg2sGN+HSUPP4mv1Angfsyi1O++9iJ2h+xSzjo8gx0xNwZYh7SWuHUDeu5LJRNntSEcVw/7hqUxgO9+2b9/qSLtNVaWgoyKOMQnq92YBbFKAnGvd+7xCkwC3epRRWH4KIpKHjWWXOA82MfFLInqfTLSInbRBeKjfaxDwxfin1GdhZiWebUs47vM80zWsi16v3i5z2PqRR9TaTYqgxbnshxKIKbqrIeojgWxHYmPYVWCTxJheBiJwlGkifnLJRG9zQK/J4mAf4Z4/sXNFpG7A4vQLLIOc5jrxf0VE4aUsLxlthzWcrbz/d5Piu6PDf+uLBbsQc/3shyWQCCepFoL/14sN1mVBGJiMXyN6tx8suDC8EVppJFnFviRLzSxF7QF72N/hlmnixApTa/DduyYeS7yZy/4524nf3qnUfc5LIs46cem607vN7FdNxo+pm72jf1SBduoNJbDYY5W7iUQ7/efq3KPb3K/6y+BuylfFHNtxcRWwyyGVUol1MCCAaqWRkgUR2KBO+njbzdwve/w08wbTZ/4lzAH/WMu1vqxgC1ilsmjwD7gDiwVSNY6fIolOT6JBfHEGCtl8Dksw5gfhVyO894fkzGVtT8mc/YSliPxJR9TFyvcNqWxHI6qOEw66N1YZvaqpLlJBOKrWAT2fInKtnJi3YKl4qmSMEyOkoVY2bfPet844n16O7AZS7sxybIFaqxl978EnMdyIH6FBbu8jeX+67cQWfJF81FfmFvrcA2WP7BTHRZYzjlXlKg95207OYB2+brN86gB75Evcjwr73YROLMM1tr5WcR2n/U/jwO7sOTWG1KMqbP++2/7BiiWwP9wQM89qd9nlIDvfH/TD0d94p/C8gruqFi538Csn4lA/PWA6tAA/oRvWzKTo+TpCrXnfRKGIiXjvnBd7n9ft0LsJHxOeX3bVrfUYV0bwdauDmWxsonhHFNXthlP7frjRfVDicOimcCOa6tyxJywgPkszZdEHNaQxVCMJu3cKppDVich1B9HhMvUBMCyD+I7FSv3JBYFPFWSHd/BiglDXBge0RAQOWn2+Psw1EkI9ccRQZbDS3cm/0B1fBATFlrEYr9pYPmrdg7o+/NMNPcji6EQQgjxLb5bX3+1WmGZf8IcXH+AOcZ+tyLlXgP8hwMq7/dcTK+poDA8AvxB3V4IIYRYRsfKlzKP5TarUqJsGI0UCDFouDB8kWrmwRJCCCEkDgfAEpYq5qSaYqhosuxjKP8VIYQQQuIwFUkexFMSEkNBA8vKfwRZDIUQQgiJw4wssmxBlECstjA8jCVblTAUQgghJA5zkVgQJRCrKwxfxm6F0PMTQggheqBo5TD+EfgN8EfA97EIXVENYXgY+CnVvm9TCCGEkDgsqUD8B+D/xG4BWaMmKT3/FWYxlDAUQgghJA4L4Q/Ypdz/o/99gsHlFxSdaQK/wHwMJQyFEEIIicPC+Qo44SJxCfiP/I9EYjmE4YvAfwOcV3MIIYQQEof9FomngOPAe8D/AXyNWRj/gKyK/aYB/NeYj6GEoRBCCJGBVWqC3DSxlDfHWL6lZAOwGVgPrMPuHL4CqPvP4/5z2u+54D+3pmM5v+I1EUmtAnYlV7R8/xr/Mw6MUd2bVppYVPILKCpZCCGEkDgskUABS38z7z/XgNX+81jLey934XjVis/4rOXncy0/f93ley/4Z1/o8P8XvQyt/nfdynQjcB1wK3B1BURjcpR8v4Sh6APjGX6nbPk1k3lprMdcdM7nngs+fzQrWofPC3wOrXP8IFiKXJe1LevB5jbvWdkvltR/h4/vfH/TD9UK5aPmnbg24M5cY9kKeruLxo0lE4oNzGL4M5TgWvRHGD6HWd/T8BQwW5Ly3w5s8nF9AxZYV+uy8VoEFoAzXoe3/d8GNSetBW4BtnodJv1PtzliCXjf6/Ah5jO+FKk8u4B9A3ymd+d8Hkmb3gncBPygpU2bLe/p1qYngbk+zMHt+m+3k7jkxO2DkvRfiUMxdGJ1NTDtu7N9wAzpj8Zjk1gMn9RgF31iK/BGyr7fdHH46ADLPeGC6l5f9FsFYTPFhq/hC+1bwFHgbJ82sMlGdR9wB3aiUc84Zyy6qHnTRc18znI94n8GxT/L+BzGgSu9T9xK9lOi1jY9GlF4t9sQtOu/aY0JSf99AfgSWRMlDkXUwbrFF7ybGYwlMRGGshiKfjEOPJBRCCwAfzyAhSixtPyU+Fb/BpZk/mhOgRWyMX0A2J9DFHRiDngih6ApizhM2/4TwD0FtekbxLOUJ/33XjdIEPnZv+TriATiChStLLLwT8CnwP8A/N+Yib/fScH/OwlD0WeuAf4LX0zTZiFYg1mpPu2zMHzOhdU1xM+c8D3gh9hR5Dzm1/dPkb/jT7G0VAe8DWPX4Y+AncA/x27B+se0ayjwn/ifQfE87QMPO7EV+NfAX1JMCrYp4D/FrInzOfrEOPBz39hMFdBuf+T9awp4J8OzlzgUogN/AE5j+R7HXSQWnbqngUWG/+f+/UL0g5ovIj8lu5XlAvA/FyCg2pX1T4H/HrO6jBW5hmDHfLtcLL4baVyOY750L2F+ZRRchw3eVv8e80kcRnGY9ItXKN53fI2L7u9m7BNTLQK2yP77PeA/xqyv76YU2RKHQvTgK995/cEtCUUKxGPAfRKGos/8E/Bf+uKalSbmDF/0AvSnmD/Vv6B/eVa/h1nf/h/fMOblbszi+Uf9Wgv9u/4Z8L9gJxL/FPh7VRGHfwz8Gxde3+1Tm/5z7MrZNIJ7HLvhancf+29imZzV2iJxKOLyj1hC8H/vi9P3In9+E/Nt+isNXjEAxoH/lnzuE+NunfiwwHJuxSxDUwNoo+/52P+/yH6cWAP+M+BXDOb++j/CgjP+N8KOyasiDqe8Tf/FAPrEFuB/JcylogY8jPlD9vsCiRv9eZ+ieOt+6blMc76ILOCOYE7qsT/3FZ80hBgEt7u4y+O4XvfPKYop4CG6p3UpmjrwtAuCLOzy3x8k096Oq4eo/+7DggezzL0LWPDGAt++YCGUSW/PkGPsLViQTJaI6YaXc85/TjtWa/7dGzTdKQm2iM8S8IxPCHvJ79fSxBz570PBJ2Iw1FzU1SN81jYXmUsFlPFeYHuG8fURdv3nAsuJ99d5fZM8gmkiWhMx8KOU9ZzAfDonUtahgaUn+X2bOkxiefuuT/n8trtQiBnJegSzHMfm84B2vSPF81sAXseOWM/w7QsYkoTT270vh7brjAu/XhHMB1JsbpK14U3vvx+v+P/LvZy3YX6rk4F9dx+DTTslcSiGWiD+AjPTT0dY9I5KGIoBssH7cgwmfUycJm76jF1YAECoAGhifsKv+gLbKU/euJf3gH9+qMCacXF1OMU4vyflfJGIg6N0T2ycpEPZ52KhFlieAz3aJi0ngOP0P23KnVgOwxBOubDv1D+TCOTT3u73AgcD2rQO7OkhDidccIZuCB4FXuvy3L/0/nfE++IDgQLxDsxnd6Rz565qM4iS62i+TvlaBOtW7ALPpXxNWPn3MnMVy1fotfs5zysrfl7JZ777inEl0jyWP+xl8lkPG/46laFP6rX3q5KH92YzFt0ZIlZC+voB4gRttC6q96a0uDwVuAAu+YKe5IR7IVDAjWEBBUcC55LkODG0/IvAg4TlJ7yIBbIddyETKhKmvV3vj/Sc1jOYPJc3BYr6uR7CcOUzmG9pmxCBeCudb/2qYUmuQ66mbLjo62XVbbb04cPAF5jLQq9nfzVwrcThMlPAT1LuDsvOysm6U6dMc0MAQ9Q27dqiwfJVQ8fIdyXSMcxB/lCOctaBv5U+KYSGT+qDsGZUidsD5oemL5QHAsTTjZg1Mlbi6Dux470in/mSi4Z7XFj2Skhc8zLd7vNALwGT5jjxIy9HaJLlZsvriylEQiJo1kYSCl8MoO+OYcfqIbxE+sTVTeyGqs0BfeJq7/ftLLFNXytCtMcHmOtS2jnrGJZu7ZGANruRclx3OTAuaxnI+zAfsfoQ1a/W5u8r/zCCwrBbW9R9kB/EMt0/54M2axslAlOUjzrm47VWTdFVuOwMFCwnMd+nXmz0xTTWON4dOG833YJyIuNmoOkC8SHCAhPqPnf0YjqwjcH84e4hu+W16cI4VFxsxCxaVeVywqK+m4F9tx2L2HV0IazrYpgYD/yMMzkMFicDnnuN6pw0FkZiOVxLtgghMdzise79Yid2PJzlDuNZ7OaBjepfpeRqX/yOqSnaEhqI8olbRE7QOxArCXCJcQftFsKvFTtJfkf7pm/2XibsRGAnZlHttiBvTyFunyG/v2aSVWE3YRbQrZHGx/oB9eEQcVhj2YUrq+jKs+FZDVzRh7aYwzJf9Pquc3Q+Ah8pcXgLg01/IMpNHbMkbvCJPu1x2PO+SKiPlfPZrh/1ibCHiAvhaItV4yN6Hy1vA67MKQ6ToIkQGthxcAwSH74fB4i6SbofoY8TFoSQBNCcjNRPL2LBOCF3w98aaXx8UeK+3nRxl9XV4TQWnQ52LHuhzWvS7p2eRyjjOZ/7fS1/71TWi6M+HybHylu1MIiAhWgH8PekT7A7T/ixg+g/tzFcOd1isYWwKOUGy0e1n2OW8l5Mkv9oeS3hUdQvE8+9o4kFrn0Q+P5u9ZwO3DRe8E3mfMQ6vEfYSUjiKxdrHu035wPLtY/0aYRa23PJ/yx2eF3qoTNCbw7aiUU+5y1nt7KOvB5KLIcb0JGfCGMSC1x6mHRHzCHHbWIw1H3HrHRB3+ZGekcpN7H0H0nbJdG9IdGbt5MvGOhawm8RmY38fBM/s0ZOoXQj6XzNYjKH5fPrJfxiXXc4iGjlzwPFIdjx/sPAzwYwFyTJtkOCQ8ewKPLPGPGgkX6Iw2vUFCIFe30gp/FfOoMdC82o+Uop+MWl3Ba4mTm64u9Jzr1e7bqNsMTAnbgq8Nk1XITGJkai4NA0K6eIZzWkRcjf18f+NIhj5SWfe0OOz2u+qbkVi1yOmeMxhA8Dx03N15E3MIt43qwaog3JsfIaNYVIueM/RLrj5fkCdv4inji8XM3wLSYIu23kozb9ehF4P/A7bswxBjcFvvcU5TwmCw1CaGK3YIhszLLs8xfSr6aBx7AE089iR7gTfSjnccKtnLDsC/8K8Dcta5JOpyKwSg0pMlLHjpfTXGs3S5gTu+g/64hvmakydwbOjZ/Q/vqyo/S+jaOGWSePkN7qsdpFfcgx3BnKG3AUcmpVI3ualTLRGty0nm9bErP8PdSydwzzJ9yRcn6vY24VP/b+uYC5EnzI8rV6X0bsV03MYvlsCl1S83Ew6ePtAReYvwF+5/3mnI9RWRZTikMhsrLNd5mzgYNYlkNRBcZdtPWigVm02i06oUfLM2SPWr4icBE9V1JhOEZ4Dr6Ph6Bf7Sf8FpgQHif8aP8pwu8XXjlvJ0JxkmW3oAXMOn7GRerH5E8UXsOslTdlbKdaS/2mvd9cYPlSh+SuaG2CA7gMRSmK7Exix2IhC1SzZfemyPhyolOE5YXlhoD3Lfli1o4LhEXojxF2fN3u9+qB732vxM82JBhFVzy2p57ivbPYdYMLEef+HdhtI28Bv8WOovMc6ybXIv4Cc4WIMZ/VXdAewvwT3wH+GsvQMq4u1F0cCpGHNGlQlny3KRFSTiTalyNoJwLa6v0uwuUi8C69o3mTG07SjokLhFvdyvhsay0itxfn1S3b0kj5/mMuEIu4sWrSheI72LHw1hyfNQ/chblbNCP3uTpmlTyF+Snu0XokcSiK4Qaf4EMHmI6Wyy2MRp3VhEUp1+geJJHk0fs04Duvx6KW0zBW8XZuqs8NZMwex64fPEK+NESdylDHgkRewKx1WQNZ5rG0Ok8Rz9q5kh3YXdsvkT53r8ShED0YT2GZqGHOzKLcC/YoM03YMe8C5mvVjVksYCVE6N04gm19ufpc38ds0/vlfS7iTkUUia3z/DRmQXwyh0BcxHwq97qYLUIk1v3zXyOftVPiUIgOk3zoxPSZmmtorBDDSKgP7VtYtGav974ZsIAnUctpF9GqH7d+Hfi+NYSnYhkl6jl+dwk7Zt7tIjH2EW7Sr/e6QMzj35eI2b3+ulBAOacxK6UEYos4vKhmEH2a5KG8kZNCz2XcF8uQdnoXs2z0arOTgcJmBrvxJJQ0eeuuKnGbXwho63Gqf4xeBI0In7HoIvGvsLRCf+lCcY7lG0tiCMSf5xSIyc1Dh4E/9vFyGLN8LkRqixnsOFxHzCiVjRiMkLyAch2K8pHmnt/QvHuf+wLWK8dcHTvOTnNbSoOwPIfrS9zmn/aYC2ouDC+n+lHLC8S19p4jbv7KRCgex+7tvhazpF+H3ZoynUMg/tg/+3SE8iZH47MuOK/E7u/ehKVXuz7H+jKNXc13HyPOKlkLxABYkjgsHedGvP41F2chR7tJkEnoEdTZwPdt88UuJOfhRf/ckCPwm0rc7qFiaTPVz0/3DJ1TH2XhQkHrd5JSZrFFgI21iMXbsEDECcJdUerYse2fRy7zkv+Z97I80yIWb/fyXp1yvdnpQnak721elXKACtFtcQ0d9OpvomysdnEWsthtxO51DSX0SPR6wpPKg90AEUJZg10uEHYcmOaqwDLzBXFvFOnnZn6pRSy+iEXXb8fSwkwW1L+ziNpmi1g8hh0Rb8fcRW4OHN/JbSunGWHj2WXeWFqsRYyBGbogiGo+u2Fm2heP0I1QneVE1J1ekz+h1pUxLO9a6DP7IvDZbaSYu3HHe/yptby24yJhqa2aKYR7v+uQZoytH5KxlhzrPg78WYqNUp1sCd/zMI/5Ju7GLJeNFP1t7ShPiDpWFrGQ5bC6XCBdUNEw0use5E59vttrljG02YVciH/dGcKu6Kthd0UfjjzeH/DyAnyFXefX7vUl2lthmlhqqwa9/Q6vBzYQdpdwKBNYLr0NPepwFniefMfaNb59N/KwbCrngbuBXxJ2d/Nkiv4dkyQtzjnguYBnNYkdo4/s7TzJsXIDIfJPFKKajPqF9OPAHSUpy/UpFqXPsSCHkGO92zB/t1iL3Vpvs40BYvgEnY8SP6N3UAqYVXUfZq2KxbWYf1kv37kFF4dVY8I3Bb04mVP4LgJHA8XhDzr8+6GA3/0CC5bJutbUvK4hY2aCEWdVy45JiLyWBAnEajLqltxpFzlloI4dLYf4ZS1h+RZDfKlmiGs9vAVz9O/1vU3g7S7/fxpLFN4rErbmYvQocQJTat7OIUEV5yN9Z7+jxq+lt5UMLDI3b/3S3HzVLvL8sRUbhNYo/OTnU96Xsm5wmr6hep8wa3uZU0AVTuJzuIAQ+ZAwrLY4HFVf0HGyHSkXyc4U5TmaQnQeIF+uudY220dYBOhHWBBGt3kjtA7TwE8itfFaLD1LSDv/XaTvLOux8k0R+v+6nL//aRtxtvLn5Kg3xgYshJG+sOEyH5yjnsZCxNmJi2rSGOG6X0l5jpRpWQS3BI6peeCVFOLqb8h3ZJb4Gu4IfP9LARvHt7GkyyHsxaxMeeabccxHbjpwbByNOL/1c56cC9y0byP93d4ruTHwuxq092/+JHBc5N3IXYm5boQaO0Z2XVtV8h2NqA6yHFaXsyNc982EHykfifB92wjzEUxSaYSIjZcwa2M98HOfxI4Ss/iaHsTSl4TMB4uEJQv/ErPOhfgv1jD/tHNkOyKfAO4hLGq2CXyAHUXGmN/6Ha2cpJ8J8a87QPYUMxOYT2uIkOrkwnYmYMPR9L6Xx7UgxOKd9N2RXtdWtTwYIfLuiEMGkq7BKh+/Y3SDUrYGLmqncgiqVh4DHgkUkSGLYBOzEL2OWdVCxNV+LDDgeSxYZCngdzZgR7p7A9ur5mUKERzJ0fI2zDeyF3XMl+42LD3JXEAdxlm+Pzc0390Fb6NYY2MQRpgjAf2t1iL4HyZdLsYJzAobmqLmXdq7GZx00V/vUc5JLLDqnsDn3vq7BwkLfKlhfokfj/KikPgcfo0ilkU+0uyw1qi5SvXcRvXkYALzOwtpo7eIcw/9ycD33cxympheLAG/IJ2j/gyWzPhvfMGc4lI/rwksaONZX5BDhSG+cKeJ8J0nfUTwDuxI/TkvZ7s6TPn/PefvvTlFHV538VxlTqZY2/cCrwK76O16MO7t+irhR71NzJLcbq34GLPShjDtz/LnbZ55O6G3FbOuP0u4v+EZuvvKDj1JnsML/mBmECIbilauJouMruP1LYQdKS/6Ihujf58mLJVGDbv+61gKcfUMl0Z9dqPuAmvGf28JC04631K+5Oq0NL5XDV+M0x79HfM670xRh0nM6rWzpfytm9DxlrqmYcHrENOi/jTw0wL68T10ttDOYVbvEAFX875wMxZI9J63wznfQCbR1jeR7Vq6d+jsW7roQjPNLSYH/bm/j7nG/G5FOa/zDdb1KftwI+J4r7Q4hOVM9TejwAKRDVkOq/nMFggPBhi2zcztgfPdeeIdMTUxi1TI8da2lJuu17Co0YdSzuP1jAKqEy+T3T/zF1ji6R0pf6/OpalQyLieNVxon47c5yYH0M+XsCP7mRTPt4ZZ56aJF5jRoPcR/WuY7+N0inJOtmnXZs7yhrpDjIQ4bGJOyr8jf0i6aM/+AU0O/Vxsi7oE/iTyiy2Kk4ymv+EGwu8c/g1xb0o4Bvw4YLGexI74Qq2Hiy5qEmvaIHjD15KsfWoeuB+4Ied8mVUcNLFAlxepluWo2/x7DDtaPUj2W4BibIiOB/TfJzAL6yCePb5R/oWWhWVxmDyYw2qSQthKmBN6lUkzkY6nHOjX+IIxr64kIhEapdxMIc5COUe4G8/tpLsV4iIWOAPpfARjbeLujiCk573saYJHYtDwNfBxqnek2Ku8T/q8288+0dovfhHYpsexY+E07hGxmHNxOsrZG77hMjVB4YxjxzzDTpoJJ23E8kbgV5jzsRAx2Bf4vkXiHzGdBX5PeA66DSkX4yUs6vQp+hNo2MQCBGIIw4RZnzdP9qkOC9jdu89QTV+zWkA/ftifU7/q18T8DNNs7JuY1fZR+hckm7jXPEG+6/kkDkWqAXs7oxHoEzqgLifb0cbNmE/KhLqVyMmEj8mQfvh6QWPlBGG30kwQHrW8Ugw8jh0lniqwLed88T9A3KP3RCD+yIVCUbd4NbGj8Acxq2FVXSyagX3iPt80FH0rWsNF3m7Sn/gkR/tF991WAbtXwlDisJ9swPwn6iMihENYl3EAJk7STyILosjHLYFjskFxjuknuPTKsG4bzCzX3iVH4ne5UIwpCBpY0ElyX3NRi+qSi4y9LuIaET97wYXt3cR3HSjr/LvkfSFpzyKe25wLu5/l3DC09t1GAWVtuFDe7eNcwrCFVWqCwtiDpS2YHJH6phlYeXxekgS+uwuwVIjhZ9zFVggfUFwg1BKWKmQ6YFztxHy28gR5PI4dme7HkkffgFkl04zFBSxtyBnghT6Ov6Yv3n/hG8N92HH79Sk33k0sRcsnwJsubi9WXBQ0gatSbmJWtue9bsiYIZsho+Ebnd/458YU2vMsH/ff7s/+GsJu0wl5/qOa/L8n3/n+ph+qFeIzhR2BTo9AXRvAnxCeVX8Pluoir1P0Yd+ZanCLrOJwPcsJwJOfW//tMyydSbPAeWJzj3Ikr29HFGMTwLVYtPZ1Lgyu4dt5AVtzHp7BMlm8hwXTnB2woKoBa1vqcJNvGNdgufdYUYdPWM6D9x6WliimsN3qAq1Xfyrq32L0jSnsVCdpzytW9Ikxlt0gPvV2/b1vGD70PvJ5wfNxDVjt6+pVwCYfPyv7blLWJS9fw5//rI/p2M9f4lAEdd4tmLm+PiJ1TsRh6GDbA/xtpO8+gjlZa6CLPGO22ebfWq0NgypHv9ugWxlqfW6PsrdZ2v5U9L/FLnton2hW6NnrooYUyOcwLluwaLD6CNY91BK4PuJ37nVxOK6uJzLS7PBvzT4vJM0StEGzx3uaFXh2Ze1PRf9b7LKH9okqPXsJwxTI5zCeMNqC+eFMjmgbNAfU7gf95yeRBVEIIYTIjSyHcUgshtMj3AZpopWLEIj3oKsfhRBCiNzIcphfmGxwYTjq+fcG7aCe3FVbxdsNhBBCiNIgy2E+dmFRyZPIahVa/3pB3193gfiInoUQQgghcTgItmIJrqfVFEA5rHWJQDyoxyGEEEJIHPaLmgvDUQ4+6dQuIRQdWVzHLm0/pEcihBBCSBz2AwWftCfUctiPpNWJQNyjxyKEEEKkQwEp6diKgk86EZpgtF85CevYnaxg99jqJhUhhBAiAFkO0wtDBZ+0p0yWw1aB+DThd+kKIYQQEodqgp7IxzC8nWILyRhMAj/Fjpgl6oUQQgiJw9wkN5/IxzCO4GsMQKRNu0DcosckhBBCSBxmpdViuFHNEdReIZwbUPmm/Vlu1aMSQgghJA6z0Gox1HFkb6pwK4kEohBCCCFxmJoaMIXS1WRptxC+GLCQnAae8mcs0S9EeeeTGpbdIPlTG5K61DT3iLKjVDaXklgMFXySjlDBd6YEE+MM8CvgLmBej25kmQAuj/h5X/vrl5E3QLHLmZQ1djnzMA5cCawDrgLWA9e1/H/DX8/5BvMM8DnlTFGV1GWz/30T3742NKnLh8BnXqezBT2LqQL6zQXgYgn6Tg1Ym2FslKWt+9V/k/6Yqo0kDi99uK9UTBguAG8BNzJYS2ctxYBrlkgg/jnKgTiq3AkcANYA5/2VHD+fb/n777H8mm8DiznH1T3A/pxlo6V8rCjnu9gd8YsDeAYT/hxuA27whazeY+644GN2wUXiMWC2JJuNO4Hd3uZXt9Sl3ZzXWpf3vS7PRJyPasDfR+7bCZ+4yJoFjg9IKK4Gfun9Jk19nvA+E3v9+/uU5XgJONyHdtoPPJCibAvAn3/n+5t+qCXCHuyWignDBvBoS+f6NbBjQOX4kxQLywRwkvIc2b8B3I8siKPIY8BDBWxUWoVA0/v7mxkFWM0Xkf0FtUFrWU8Br3p5ixwP4z7+DwA7e4jBXhvLRJS8AzwfQYxnEYTXZqxLu7rh69BLwFxOoVgD/t8C656U94L3naP078KBZM1+q+XvoeV90ef8ZuTyXEgxlzSBj4CbChbWadbbZGwtANOyHBpVPEp+FDhSMoEd0skvtNmFDpJEUO+iGkE1Ii4Xci7oncZC6887MEv1Tb7ony5RX2st64z/ecMX+iIsQuNuxdifcb6tdfj7DHA98DrwC4o7OlxZl3ty1KVT3fYD27wuP6O8JxtJeevAdn8GrwMP90GgN0mfuzZ5763YcXTMMq7OUJaNwIaC++othGdbaS3/mAJSlm8+qUrwSRO4z3c/SyUrVyi/L1mb7vCFUNcijh5jffqeui/6bwGP0L9rJLOOh78Fno08JvZgFqZHCtqIJ238DnCw4Dbeg1n2iqrLJHDI22sr5Q9gqbW0/2+97EWWeQKz1GbhahdNMbmYsc1+UvAz2Zd10zzq4rBqdyU3MXP4Ecpn5QqdCBJfobKxHXiy5Iu2iM+FAYyTh4CfV6CvHfQxMRGhznuwqyz7sQmvu7B9rgCBUnPh8zT9OWmaxiy5Bys0piYxl41dBQrEW3KMnzrluVJ1G2Y9LKKdtmDW3CyfPbKWwxrVuiu5ifn23U/5LIatZQzlQ5Yj9srUJ/b6oi0L4ugwNqC+dhCzspRZICZj4uGc5Xykj2Kqtez7XSTGitgd97o81ue6jPl3Fm2Niy3Qny5III77+l3P8Rk7SzL2Jt0wUUT/355jfhtZy2HiY1glEfCoC8Oy+sWlmQDOAJ+WtA4HIyyGojpcGGBfe6xEFoxu5fwx2QNitrqoGZQ/90Hg3kiftd/rUh/AM6hjvpq7KjS2knvtN0T+3Csxv8G84jXm2Fud43d3Yz6QMdmAWSWzCvORsxy2XolXlZtPkqPkMgtDUpZtHkuFUFYOYhZEJaodfkJ21o2AP82M3/3TiJvU0HKmLWsdi8ZNa4FL5tp6xvkkRhsnG768Vrc93gaDrMukrwOxjRrNAvv4tIvzmHPpZvJfadt0cRirXBdz/O4MFvEeU+ds9s/NvGketWjlqqerKbvwTjN5HGUwqXdC6pEIxAZx846J8hESrfwylhftHJakeeUrWOLmTb5bvzlw0an54nlnpDF+2MdVpzK2lnMzduwUujhOY87tjwa+fwLzrUzrYzgHvIflXvwCSxKdcKPXJU0bJ+38gH9ulnyIEy7ii6jLHS50QutSx3L7/SjivPQRlvvvTI/+nQj+W1OWeSdxc1Hui/AZNX8GWyhHjswD5E9d1Epea/nYqIjDKucxPFKR8jZTPo8zXsd6iet0yF8fR2luhpWxgH7daFlA5tu81lr+f8pF1wMp5poDPs7zLgwfennmO5S1lSkXkvemsDDckWKzdCfpfKkWsDQoz9P55ohZzN3jqH/2gRQiZdLf/zHpUpjUMDeTjRHrUmtTlwdchIbUZQazesVK5Hze5+NefaeG5TG80gVa6BH7hNcxRgqnCSzpdQyL39UuEMsgDrf55iNGWbZgaZ1ybZpH4Vi5ysKwrMEnndo5jZD83CfQMten7taPg+iIeVi5EKFfty5485gFby/hUflXE8fNZX2K9867uLjLLRYxyznlQiy0Pqe8ve7Hcr51m/OWWtp4u8/roYJjP+lTmGzBfC6z1GW+Q12abeqyF0vBE0LdxVm/feabXuazvmF+lLDAwpqLn9URynAnYf7gCwH9oo7dzBODvHVLBHTeOSDJDJA30G4kfA63YKkAqpTg+iDl9zHstkCGsOS70EbJ65UcSR1EDCMhk+i5DJ97GrMGNgLLsD3CeP8iw++cxRJzh5bzxh7lTHKrhVra5nwDlliV0rTBImbVeyXF76QRVeO+0NZTCMOHMOtP2mc560I9dEOxnbh+amnn+qaL2lOBv3N9BMFSczEX8jweDBTbM8QJPrwY4TPuIH9gygbs2D+vyBxqy2GioF9hMOkqstDAElwfo3rHmFk649vABxWo2ySWEmMPimIeNkKilddlXEBfCOzfNe9j4wMYh00XsaHlvK7Hd6z1RS6kHAvYDSNZxNRKgRjqfjODWZ9CmMashgTW5S4XuVmZxyyIjcBnsb0E4+epwGdXjyBmN7B8j3KvDcdx7Kg8xHq4vwTtmPgf503OvZ04uUSH2nK4heXcWlWJSk6OkqtIlsl9EbvLtSri92nKn3pEpJwEC+jXrf37rcD3XhFhE7s+Y3mXfCENYbyHdeOWFIvTEeL4WC2Szvp5U+CasJ0wK1UT88Wcj7CpnyPcGre5BGvbHOE+nFflnH83E2b1fc+fw2zg5u+2EmmEfTnLsjvWpnkYxWGSruYtqpPHsOE71MNUN/Aha4c+TLjP06CZxCJXtyIL4rAQ4nN4Lkf//jDwfdcAl+esyxc5fvd3KURsN0I3T3MuqGIx62MzZJ7aRu/ju+R9IbxDvMDBJSxIZYHeqWXqxM8hmIXQo/D1Ob6jSVhKnAbmroS/huTTvQEzJuVhdaS2nMlRlq3kS1/zrU3UMEYr78IsPFUJIGhgFsMTFW/3PKL2CcxiWq9APWuYq8KDxIsWFIMjxFq3juw59j4bobYcDxRUTeDviOOn1drWz/smu9c8MokdcXazeIVGfDaw04+YgYMnUvSbz0ekb01h6Yt68QHLVvCLwG/obcmeIH/Ucqy+nPgfp43sTtzoom2ah8lymDTOT6lO8MkCy3kMl4ag/fNMhi9THavppG9AtqIo5qpT5A0pTdIfpeXpT3ksM+si1HeaMIv6InCygLb+nHAf5l6RoTcGfs6nXpeY88CSC5VZFwkr/8y2vI5KDtbQ49YzWJBV0idC/FmTQJd+nDTO0T2Suob57Ka1CG+h960xC4Sf0g2Vz2HiYzhdkfI2sGOVF4ek/fMIuyXgZ1gy1qowiQUcbEFUmaKildNyPsI4+iJnfw7hqw6CuuZCOKQ9F7B8g7E3gxcJ9/Hc3OP7ryPsJOMTFyNFbWybbf5AeTbSVwb2nWaO/jlB+BH/ymDOM4Hrygz53TpC2uA9LIVbrccma3PKz95O9wwBSeBZ6M1kQ2E5THwM36BaPoaJxXBYkivn3TkvYZGLCxWq8zR2xLxVGquyFBWtnLA1xZwwqHE4Re8UNa3CrtMR2qbA7/s96RJRp1l8PwysR7dEyuOEW27OMNoJ8jen2Ficyfgd1wZ+R4NLLWNnsaPlXtTJF/29OsXYfDKgz6S5cjCxNnZ7f6u1PqS/DoXlcJcv0HWqccTXepQ8TMSYIGcxX75GheqdWBCnEFWkyGjlKXof9bQuYnn9x7JEK9d8IQq5aaSb+FqdYg5+t8AN6mcphOeGDp8xRniU8ocjPHamMDeuEBaBrzM+0+2B4vB1Lj1mT46WQ9aU28geaHgxsL8AfElvt4rrCTuVSi756HVi+j7LPpUhY7TSlsPEYljEReRF0WC4jpLzWizacdyFc5UE4kbgV8iCWEWKilZOkkFfHfj+35Hfqf2LlOUbx5K7h94AcoHOgRJjKRbWLwrayDf9WZ0PeO94l8+4HFiTQoyOGjUXhj8h3I3rfRdFaVlLeJBTp6DOtwnzzbyBODcV9Vojm8CbPda4McJvGToQ0DZHU254Kx2tnEQl1ytS3oZPxMcZzmOIZsTPedwn+ceoTgTzDJYQ9i7a32UryklR0cq7CL97tsFybraiGcf8xDa7eA29squJBXt0i+i8YgDzxUrSWKfWdRmrawLrcC5D+8f0iz/Xp/mm5kLtWswFIc3d4Q0XQ1me+bWEpWf5iM7H1l9ivqi9kl1PshwpXPQaeRLLSTjTpb1vxKzb3Z7vlgDx/M6KtgnaCFZVHG5lOcF1VRhmYZh0uJgC8YhbGKqS4gYs1cKzwN0U41Ml4nMhcv8a90XoMcKTWn8QaUG6l855BhPhVmf5Npa09X6+x//Xfez2Wnw+K/h5nk/x/rzzVtqj0mnMDWVNpPoe8c10njokN0B91aXv1L3Ma7CTujTWtQ/IHp0emp4lCQzqtJ6cIOwmlG3Y6V7a9kzjc4iX9UwP4bvRxep8DwHZ6+T0rRVtEzJGK2c5TM7XX6mQMGy4MBz2nHixRe+Si+nPMIvcTEX65w7glxKIlSFEwNWxY7R1mKWm3etVvmndmXJuarroijF+ZgocJyd9PKZZAMvOVbS3hIYGIGVNg3R1xA1JjM+ZLHA9bWJ5ILNYNycIi9pNjk27jaG3MX//XvW83gV82pyHaXwOk5+PuTboNmYOuIGkXd3W0vvoudGmbYbSclhVYXic4Sem5bB1AM1il9m/QHXSFO3AItIelkAsPSGWwx+zfMfuEsv+aq0/j2UUR+9Q/gT4c4Tdoduo2LPvZMFMc1R8ucZ4V14BXsv4u7cErvWL9I6EvkDY0XIds9bNFtAWK+eGWR//3Y6WN7rume3QPht7fOcpLg10C7IcViUgJQk+qZIwXGD4j5I77YpiM4uluTlVofbY7wJRUczlJtRymPyZZDmadbLl32sphWHT54iHKG8i46YLvifofuxdK9nzjHFkez6wX4jOvAH8IqN4Ttb8iYA++j69LZNLWJR8I+Dz7qCY61HbrZGv9lg7a5h1cLzNv/dKDJ5YVJcyjNfKRCsnFsMqRSU/6BaBUcmBVfQCMYsFe8xVqE33Y35guoe5vFwYUF+/gPk2nS5x2ywGbnCT//sq8HOvKnC+uLzPbbROQ6htfzgF3E/2YJm1WBqoWsBYfDPwM9+j913LNezYP+0p1eqM88ZJeifp3tamPFuw6Opu4/Ij7Dg9RKResskquzhMdg8v+C69Cv4sjZYJdWnEJoSimQfuJP7VW0VyCPi5BGJpGRvAdya5Tl8s6Uan4Yv7nxF+8pEmTcn6Auu9jjDL4RJ2S0s7vibMcpjlesRhXwMamAvC7hzCsIZFKW8MeO+ci74QTge+t054FH9CWp/D1jWtV5kmscCTWkv7bKd3YNDfdRiXQ+FzmKSrqdJR8oOMzlHyyg7XL4F4N2aOv7kiG4aD/vqzEdswVIHY0cohi9kTlDdALZnDTqTsq8kxeYg/000Flv+qFBuxC13+vRE4563v49w3yI15SBleAV4iv79ek/Acf7hQCr0LOzTd0jbsSDZmmqBO9XkJC2Qb6/KeA5jv5iJmVb2jR/ssuBGl2aF9KxutXMPy+zxNNY6SmywfE42iMOz3BLWIHTE/iwV/VEE4/5jlJOgSiOVhrE9jYxG7weEYxTi7h4zBWuDvn8jQR2uE3xbyAxdwSwWMs02E3+/c6fuXCD8iv410lxp8jFmNe3Gdzxm9Ni6NEvSb1naL4SaR5i7laewYOPY4vh6LlJ7vw/g8jaX76ZXW5hafP3oFoiR+mHM5nmdpLYe7sGt5qmIxXPTd9rCnqykT88CPgL8h/RHAoETIIf85b14yEY8iLYcNn/TPFCwKE15h+Wq6JM1Owk1unaj3EAGTmK9s2iPvJhb9G9Kek76on448Dlb7gh4yF7zV4//fDWgvgGvonah45VoRcnXqVpZPHLq1eXJ7T552XMTyJbb2l9b+s5veKZJq3l7PYzn18pTnFtIZhept2iXvelD3Z3AsRd8L2bx0eo69TsJqWA7TE/S+d7lG+0CUNO1TSsth1RJcN1g+Shb9ZQlzev6KsASng6TmE84hn3TL6m82aowFjvFPMV+2Vl+0lX8/7+8960LwM8xS1K9UJ++26VfJIrAWO1ILsbTvxvyg0orZj31M9hJUExRzE8WVhOd57GXlDPVju5ruiYqzEhK0cwG7KCDvPLLgYuJsi3ho7TvvuZiuBTzXnwB/laMs464B8oi7WIaCWwm3cGf1OUzKexI7Ou4WCLPTy3J9j+9YpH0gSpr2KVW0cg3Lhv4C1UtXc0wL/cAsd/PAfb7zrcIzqGPH4Y9Il5WCkGjlw1hk4DX+elOHv/9L4C+8Px53cdXPHHjthEKzZcF4KnCMzBB+M0Uri/S2yCVzxR0uWGNyL2FW4IUeiycuXD8NaK+6i+nYAWch97QvEfe2mSaXJmpuYseTLwY+1/3ku2P+ShdBZeBqOt84FHONbLow/7uAvhZyJeczdA8Qq1y08hbsKLkqiY4byGKYtsMVxRKWcPqVigjEmg/yPeo2AyfEcniuR19vlmw8dBM87wS+98dk8/cOTei9Ecs8EIupFKLi/YBNQRP4TeCm9/rIImICs1r1Kt95Okdcx+SiG0AagevAgYxiuYa5BZQlzqBOfitmmjnhJPl9SBfpfU97pSyHe3xhr5Iw3MHoBp+UkUXMYvMU1bEgvuh9v6bHNzBCLIdVyWW3PmBxegiznIX0zyczLPJv09kRfuUC9QD5rEytYupZwk6cGnT3x2olVBDVMVeoGAnva77R3Rjwvt+QLoVQHlFzGng5sPw7M4rlJr0TO/ebWzGf0l7k8TlM6j6H+Sjn4X1/Vr2+q+emuQziMPExrEqC6+QoObYztcjPEmZSr4o/XyIQd+nRDYxelsMqjfEvAt5zmrCjX3yRT7th/9JFS0i7TfhmLo+oSsTU9sD3f0DvI+WEj7EI8zQCNe86tsvbPUQgzfa5fz6ZQizfS3qRN4W5Z5SJqwm73zmPz2HrZzyfs7zJPcq5LYeDDEipUb27kpMcYIpKbv88y7CQLmH5BBuE+WeUQZw87T/LEt1/ekXX1ogTEVqWcdjE8qpto3cS3TpmabybcN/Jps+PtwYIyxoWofkr/560G+4pLAAiVEwlUaGhdVnEjslDopaTxMS/dMGbti7jmLUtNBhzLoXIjUHit3rYn1Wv9p5xoZtmTtseKK4XMB/z1qCi9Ss2RyF/D4nCrvtzORZpbPZq4zNevyyaaIEwN7fSRytvoXrBJ/IxrIaFZQlLF0MFBGLNJ8SnMefyWXWlvovzXqyriDAMvXlkFrOIHQp47wzL+dVCmXUB+lxg/59xI8EzLCf67fU7uzDrVJpE+O/456fhOHbUuSOwLjuwQKWXAuuSiNx7XYSGrIeJwP9yAH3sBSyYKMSi/FMXsCFtMI7ljAx5lu+znC925WYozd/XERbdvpM4eTlDxubZFGNz5We/Hvgdpfc53E71gk8UlVwtsfqo/2lUwNoz6RNvTAdoETAJDlFdvkjx3ucJ9z3cR/rj0tewK/hCmXQx+Vt/3eOiacL/TPnYeIzllD1phOECZvFazDCPPBXYVgnT2BHzSeCvu9TlEPBr4O/951BDyTt0vv2iaBZdmIZ8dxJ0VAtssxsCP/dMi1DrFRzW7e8nU4yB23vUI6/PYWv5ZlP2t+S5HEvRp3tumgcpDu+oyIQ7x3K6GlE9DrtAXKhAWafdgrJFj61vZIlWHgbOEp7+aSbFIt+6WD2UYdxNulD6W8w/8H/3Px+42HzEx0k9ZXmeIXtexdP++2k2mTUv534skKNdXZ7DLI1pTs+SoKL5Afad1wiLek+CjkICOm6kt5tDUv+jkTbkH2NWyBD29RCAMXwOE06kKFfCW4QFgoWK1FLlOSwjC9g9qDpKjtPhBsURzPJbBYE4iVLc9JNRilZeuVC9AHwU8N46lp4kbV7C0z7uslq4ksTxaYXgynq+Qb48qE3//cMZP6MWqS4Nlv0ZBznfLmK+myFtMUlYBPLuwO9+B/g6Qh2a2LH8mcD330D+k8401xCmFcBprrwsteWwBnxS8ol2jmUfQx0lx9sVDYIlf45lF4hJlJn8DvvHqEUrt/IldkQYwjTp8xImwSlPMTjXjlewW5Ty+ostuZgeVC7VJmaBfIHe0aj94DXsWDaE/XQ/DZki3EUgTUBRSJuG1mECs27Wcn5fKGdSrFWhgShpROrALIdN4M0ST7IN4B4Jw6ETr2UXiMk1SnJh6B8XAp7JOarjB1pLOSZeI/w46gGypZ15BnPt6Pdc+gaW+zTWEewiy8n2ByFyf0Z/b9zp1RZHA0X/BGZ57tQ3twf22waW4DnmWDzt60EzYFzdRuej5dWRx+bnhAeYHClApA7U5/CID96ykfgYKo/hcHIM2JtiQewnp9zKIfrHKEYrr1zkXwpc5EOPCFeyhB3JbvM+XnRbLrgo/BH5LYbt2uuv/PP7sclM6nJfAXXJy3HCgo6SxNhbOgjH2wK/7wOft2P2n8RlIKRPb8eu92tHTJ/DZMwcC9i8LpA+OKn0PocXGexxQ6edyRMoKrloi8WgaLbsFp+gXBbEBhZBOq+u1FdGNVq5ldcIv5mh1xFhN04DdxHnmrBuG6wHsWjmiwW29WHfZJ4q6POTGzOSuiyVsL8lkdwha2Wd9vkRryU88fWZgtohtD8muSyzrnVpfy/kxpT3Mxg6Sm85TK7kOVgSgbiARY7pSC+f8KpKWY8Bf1YSgdhAEfGDYlSjlVtZ9I1JaIDBgRwL5DzwFz7XvkHYkV7I+JkD/hL4Vy2b+6LnpFngX/r3noq0jjVYPkGYqYChYo5wP8wkMfZKsRWa2/H5AsqfRC2Hbo52E3aEHGON7HVjSoPwqyDTitSB3pCSNNZx7DjkWQZnfUoSXCsQYLSY993/U4QlQy3SCqGI+MHQ64YUGM5o5ZWcwCwoIcmed2JH0Wldb5orhNWPsECX7diR8/WkS1g/h13VN0t4suUiOObtl9TlDizHXy1lXd7zzxlkXdKyxPKNO71EXh1zS0jq1yQ8pd1HWPqlIjRIErUcEhQz6c95Zd+P7XOYlO0E37ZOrwHOt4jDExnr3POGlO98f9MPy9DBxjFn54for0BMrgTaOwTC8NeBE3tsGsCfVGgyazdgN2BHa4NIyn6EcvoTjQLJs/8auLzL6+cDfj7jLPs6dSvrhZzlTBJdXz6ANknquNlF7nX+b1f4/3/l39fArk07E6nOMftSwlpvo83AJhdF3eryGctHg7HrMhXwLL92gZQn5dDawH6z8pmF9jkKXmNCx1i3vj9VwLipufAca9nMtp52LGasZ69yzpdFHCaFfs6FWr8E4oJ/3+k2O1uJw3Ti8MuKt99W+m9BfAM7PpKfoRDfXhCbfPuqs5U/V32+Fpc+b1EiypQEe8ktKP1KE5AcJSfmYXXOfFS9/WYxZ/lTfWqrU9ixmoShEO3nkmaH+UXztdYOMULisFUgvlFwh5nDLIaKShatzLtALDrF0jv+PTpKFkIIIXEYKBDvp7hM9MmVeKf1+EUHgXh/gRuUUy4MZTEUQgghcZhygT5QgECUxbA4akNUl3ngbsKvVkojDB+imKg7IYQQYqjFIS7e7iNeouwGdiWeLIbFPa9hYtEF4huR2qbhwlA37wghhJA4zMESdifn4ZwCMUlwPauFWWQQiEcifM7N6n9CCCEkDuPxONlvUknS1SjBtcgq7B7OIRATVwYdJQshhJA4jEhyk8pB0l13lizMOkountoQ120Rc3E4knKDMoe5MshiKIQQQuKwIIF4DMtNGHLR9ALLPoZamPvzfIaZJcyC+Hrg+0+1CEMhhBCiMqyqYJmPYdcNvUL7uxyH6Uo8US4WsSh6sPtl623e03BheDfVvVJQCCHECHNZRcs96+Kv3W0WH0kYigJJougPc6m1dA4LoPqRhKEQQoiqsqrCZU+uO9u+4t/fkzAcCKN0P+YS8AJwDrjN/+1N9T0hhBASh4NnHt00URZGza9zEbMeHtajF0IIMUxcpiYQQgghhBASh0IIIYQQQuJQFEZNTSCEEEJIHAqRoFySQgghhMShEEIIIYSQOBRCCCGEEBKHQnRBPodCCCGExKEQ3yCfQyGEEELiUAghhBBCSBwKIYQQQgiJQyG6IJ9DIYQQQuJQiG+Qz6EQQgghcSiEEEIIISQOhRBCCCGExKEQXZDPoRBCCCFxKMQ3yOdQCCGEkDgUQgghhBASh0IIIYQQQuJQiC7I51AIIYSQOBTiG+RzKIQQQkgcCiGEEEIIiUMhhBBCCCFxKEQX5HMohBBCSBwK8Q3yORRCCCEkDoUQQgghxDCxSk0wNJzFrHf9PN5dAI4AX6r5hRBCiOHgu/X1V6sVhoPf+5//D/gD8B8A3yvgexrA74D/CXgB+NfoSFkIIYQYGr7z/U0/VCsMF+PAmP98ub9ubvn/TcAkcEXg530FvAt8AXwGfOz/fgFYUnMLIYQQw8X/D+TigKNz08jQAAAAAElFTkSuQmCC" alt="College Access Program"><span>Subject Finder</span></a>
+      <div class="prog" id="capf-progress" hidden><span id="capf-round"></span><span id="capf-left"></span></div>
+    </div>
+    <div class="track" aria-hidden="true"><div id="capf-bar"></div></div>
+  </header>
+  <main id="capf-main" aria-live="polite"></main>
+  <footer class="capf-foot"><span>College Access Program · Subject Finder</span><span>A starting point for exploring, never a verdict.</span></footer>
+</div>
+
+<script>window.CAPF_CONFIG={subjectBase:'https://collegeaccessprogram.in/options-after/',sessionsUrl:'https://collegeaccessprogram.in/',schoolsEndpoint:null,addSchoolEndpoint:null,submitEndpoint:null};</script>
+<script>/* ══════════════════════════════════════════════════════════════════
+   CAP Subject Finder · content and model data · v0.9 (pilot build)
+   Everything the assessment says or scores lives in this file, so the
+   WordPress plugin can serve it as JSON and counsellors can edit it.
+   ══════════════════════════════════════════════════════════════════ */
+window.CAPF_DATA = (function(){
+
+/* 14 interest domains, with Holland (RIASEC) loadings */
+const DOMAINS = {
+  NUM:{name:'Numbers, logic and patterns', h:{I:.5,C:.5}},
+  PHY:{name:'How things work', h:{R:.5,I:.5}},
+  LIF:{name:'Living things and the body', h:{I:1}},
+  MAT:{name:'What things are made of', h:{I:.6,R:.4}},
+  COD:{name:'Code, data and AI', h:{I:.5,C:.5}},
+  MON:{name:'Money, markets and business', h:{E:.6,C:.4}},
+  SOC:{name:'People, society and the past', h:{S:.6,I:.4}},
+  MIN:{name:'Minds and behaviour', h:{S:.6,I:.4}},
+  LAW:{name:'Rules, rights and justice', h:{E:.6,S:.4}},
+  PLA:{name:'Places, planet and climate', h:{I:.6,R:.4}},
+  WOR:{name:'Words, stories and ideas', h:{A:.6,S:.4}},
+  DES:{name:'Design, art and making', h:{A:.6,R:.4}},
+  MED:{name:'Media, persuasion and performance', h:{A:.5,E:.5}},
+  CAR:{name:'Health, care and helping', h:{S:1}}
+};
+const HOLLAND = {
+  R:{name:'Maker',line:'You like to build, fix and handle real things.'},
+  I:{name:'Investigator',line:'You like to work out how and why things happen.'},
+  A:{name:'Creator',line:'You like to make original things and express ideas.'},
+  S:{name:'Helper',line:'You like to understand, teach and support people.'},
+  E:{name:'Persuader',line:'You like to lead, argue and get things moving.'},
+  C:{name:'Organiser',line:'You like order, data and getting the details right.'}
+};
+
+/* Round 1 · twelve city problems (pick three). `s` is the short label used in "because you…" lines */
+const CITY = [
+  {id:'c1', t:'The metro is empty at night but packed at 9am. Why, and what should change?', s:'the metro puzzle', d:['MON','NUM','PLA'], i:'metro'},
+  {id:'c2', t:'The river floods the same neighbourhood every monsoon.', s:'the flooding river', d:['PLA','PHY'], i:'river'},
+  {id:'c3', t:'A new infection is spreading through one school.', s:'the spreading infection', d:['LIF','CAR','NUM'], i:'virus'},
+  {id:'c4', t:'So many teenagers feel anxious before their boards. Why?', s:'exam anxiety', d:['MIN','SOC'], i:'mind'},
+  {id:'c5', t:'A food app wants deliveries five minutes faster.', s:'the faster deliveries', d:['COD','NUM','MON'], i:'app'},
+  {id:'c6', t:'An old flyover is showing cracks.', s:'the cracked flyover', d:['PHY','MAT'], i:'bridge'},
+  {id:'c7', t:'In the local election, some areas vote and others don’t.', s:'the election turnout', d:['SOC','LAW'], i:'vote'},
+  {id:'c8', t:'A 100-year-old building is about to be demolished. Should it be saved?', s:'the old building', d:['SOC','DES','LAW'], i:'heritage'},
+  {id:'c9', t:'A new battery could charge in five minutes, if its material stops overheating.', s:'the five-minute battery', d:['MAT','PHY'], i:'battery'},
+  {id:'c10',t:'The corner shop is losing customers to an online platform.', s:'the corner shop', d:['MON','MED'], i:'shop'},
+  {id:'c11',t:'Farmers are burning stubble again. Make a film that changes minds.', s:'the stubble film', d:['MED','PLA','WOR'], i:'film'},
+  {id:'c12',t:'Redesign a street so children can walk to school safely.', s:'the safer school street', d:['DES','PLA','SOC'], i:'street'}
+];
+
+/* Round 2 · 24 pairs. Each option: text, short label, domains */
+const PAIRS = [
+  [['Work out why your phone battery dies faster in winter','the winter battery',['PHY']],['Work out why your friend group always argues about plans','the friend-group arguments',['MIN']]],
+  [['Write the funniest review of a terrible film','the funny film review',['WOR']],['Build a sheet that predicts your monthly spending','the spending predictor',['NUM','MON']]],
+  [['Take a flower apart to see how it makes seeds','taking a flower apart',['LIF']],['Design the poster for your school fest','the fest poster',['DES']]],
+  [['Teach a simple app to recognise handwritten numbers','the handwriting app',['COD']],['Interview your grandparents about how your town has changed','interviewing your grandparents',['SOC','WOR']]],
+  [['Find the cheapest way to run a stall at the fest','the fest stall budget',['MON']],['Find out why the school pond turns green every summer','the green pond',['PLA','LIF']]],
+  [['Make a solution that changes colour','the colour-changing solution',['MAT']],['Argue one side in a mock trial','the mock trial',['LAW']]],
+  [['Map where the street dogs in your area sleep','mapping the street dogs',['PLA']],['Code a game your friends can play','coding a game',['COD']]],
+  [['Help a younger student who’s stuck on fractions','helping with fractions',['CAR']],['Get an old radio working again','fixing the old radio',['PHY']]],
+  [['Find out why people believe fake news','why people believe fake news',['MIN']],['Find out how a vaccine trains the body','how vaccines work',['LIF']]],
+  [['Draw up rules that make group projects fair','fair rules for group projects',['LAW']],['Design and build a costume for a play','building a costume',['DES']]],
+  [['Make a short video that explains inflation','the inflation video',['MED','MON']],['Crack a logic puzzle that has stumped everyone','the logic puzzle',['NUM']]],
+  [['Test which sunscreen really blocks the most sun','the sunscreen test',['MAT']],['Plan a campaign to get first-time voters out','the voter campaign',['MED','SOC']]],
+  [['Decide how a cricket team should spend its auction budget','the auction budget',['MON','NUM']],['Work out how to stop a hillside sliding in heavy rain','the sliding hillside',['PHY','PLA']]],
+  [['Read a court judgment on a case in the news','reading a court judgment',['LAW']],['Read about how the universe began','how the universe began',['PHY']]],
+  [['Volunteer at a health camp','the health camp',['CAR']],['Help clean up and rebuild a local park','rebuilding the park',['PLA']]],
+  [['Find patterns in your school’s exam results','patterns in exam results',['NUM','COD']],['Find out why some songs get stuck in your head','songs stuck in your head',['MIN','WOR']]],
+  [['Build a model bridge that holds the most weight','the model bridge',['PHY','DES']],['Write a speech that moves a whole hall','the speech',['WOR','MED']]],
+  [['Grow bacteria safely and see what stops them','growing bacteria',['LIF','MAT']],['Run your school’s social media account','running social media',['MED']]],
+  [['Compare how two countries handled the same crisis','comparing two countries',['SOC']],['Design an app screen your grandparent finds easy','the grandparent-friendly app',['DES','COD','MIN']]],
+  [['Track your city’s air quality for a month','tracking air quality',['PLA','NUM']],['Write a short story set in 2050','the story set in 2050',['WOR']]],
+  [['Start a small business selling something you make','your own small business',['MON','DES']],['Find out how a hospital decides who is treated first','how hospitals prioritise',['CAR','LAW']]],
+  [['Learn how India counts its tigers','the tiger census',['LIF','PLA']],['Learn how the stock market works','the stock market',['MON']]],
+  [['Work out a fair way to share chores at home','fair chores at home',['LAW','NUM']],['Build a robot that follows a line','the line-following robot',['COD','PHY']]],
+  [['Debate whether AI should mark exams','the AI-marking debate',['LAW','COD','SOC']],['Paint a mural for your school wall','the school mural',['DES']]]
+];
+
+const VALUES = [
+  {id:'impact',t:'Making a difference to people’s lives'},
+  {id:'create',t:'Creating new things'},
+  {id:'earn',t:'Earning well'},
+  {id:'secure',t:'Security and stability'},
+  {id:'freedom',t:'Freedom to decide how I work'},
+  {id:'people',t:'Working with people'},
+  {id:'respect',t:'Being respected for what I do'},
+  {id:'variety',t:'Variety and adventure'},
+  {id:'balance',t:'Time for life outside work'}
+];
+const PROBLEMS = [
+  {id:'climate',t:'Climate and clean energy'},{id:'health',t:'Health and disease'},{id:'ai',t:'AI and technology for good'},
+  {id:'cities',t:'Cities, housing and transport'},{id:'inequality',t:'Poverty and inequality'},{id:'mind',t:'Mental health and wellbeing'},
+  {id:'justice',t:'Justice and rights'},{id:'space',t:'Space and the unknown'},{id:'culture',t:'Culture, media and stories'},{id:'food',t:'Food, water and farming'}
+];
+
+/* Round 3 · Class 9–10 subjects placed on the grid */
+const JUNIOR_SUBJECTS = [
+  {id:'maths',t:'Mathematics'},
+  {id:'phy',t:'Physics topics',tAlt:'Physics'},
+  {id:'chem',t:'Chemistry topics',tAlt:'Chemistry'},
+  {id:'bio',t:'Biology topics',tAlt:'Biology'},
+  {id:'hist',t:'History'},{id:'geo',t:'Geography'},{id:'pol',t:'Political Science'},{id:'eco',t:'Economics'},
+  {id:'eng',t:'English'},{id:'lang',t:'Second language'},
+  {id:'comp',t:'Computers, IT or AI'},{id:'arts',t:'Art or music'},{id:'pe',t:'Sport and PE'}
+];
+/* Round 3 · Class 11–12 subjects (ticked first, then placed). `m` maps to Finder subjects */
+const SENIOR_SUBJECTS = [
+  {id:'physics',t:'Physics',m:{physics:1}},{id:'chemistry',t:'Chemistry',m:{chemistry:1}},{id:'mathematics',t:'Mathematics',m:{mathematics:1}},
+  {id:'appliedmaths',t:'Applied Mathematics',m:{mathematics:.6,accountancy:.2}},{id:'biology',t:'Biology',m:{biology:1}},
+  {id:'cs',t:'Computer Science',m:{'computer-science':1}},{id:'ip',t:'Informatics Practices',m:{'computer-science':.8}},
+  {id:'economics',t:'Economics',m:{economics:1}},{id:'accountancy',t:'Accountancy',m:{accountancy:1}},{id:'business',t:'Business Studies',m:{'business-studies':1,entrepreneurship:.4}},
+  {id:'history',t:'History',m:{history:1}},{id:'geography',t:'Geography',m:{geography:1,'environmental-science':.5}},{id:'polsci',t:'Political Science',m:{'political-science':1}},
+  {id:'psychology',t:'Psychology',m:{psychology:1}},{id:'sociology',t:'Sociology',m:{sociology:1}},{id:'legal',t:'Legal Studies',m:{'legal-studies':1}},
+  {id:'english',t:'English',m:{english:1}},{id:'finearts',t:'Fine Arts',m:{'fine-arts':1}},{id:'pe',t:'Physical Education',m:{'physical-education':1}},
+  {id:'entre',t:'Entrepreneurship',m:{entrepreneurship:1}},{id:'homesci',t:'Home Science',m:{biology:.3,psychology:.3}},{id:'media',t:'Mass Media Studies',m:{'mass-media':1}}
+];
+
+/* The 20 Finder subjects. Each links to its Options After page.
+   dom = interest profile · tilt = reasoning profile (n numbers, w words, s shapes)
+   val / prob = links to values and big problems · proxy = Class 9–10 grid subjects that stand in for it
+   c11 = name in Class 11 options (null if not usually offered) · maths = needs | helps | no */
+const SUBJECTS = [
+  {id:'economics',t:'Economics',line:'How people, firms and governments choose',fam:'commerce',c11:'Economics',maths:'helps',dom:{MON:.35,NUM:.25,SOC:.2,LAW:.1,MIN:.1},tilt:{n:.5,w:.5,s:0},val:['earn','impact','respect'],prob:['inequality','cities','climate'],proxy:{eco:1,maths:.3}},
+  {id:'physics',t:'Physics',line:'Forces, energy and how the universe works',fam:'science',c11:'Physics',maths:'needs',dom:{PHY:.5,NUM:.3,MAT:.1,COD:.1},tilt:{n:.5,w:.1,s:.4},val:['create','variety'],prob:['space','climate','ai'],proxy:{phy:1,maths:.5}},
+  {id:'chemistry',t:'Chemistry',line:'Matter, reactions and new materials',fam:'science',c11:'Chemistry',maths:'helps',dom:{MAT:.55,LIF:.15,PHY:.15,NUM:.15},tilt:{n:.4,w:.3,s:.3},val:['create','secure'],prob:['health','climate','food'],proxy:{chem:1}},
+  {id:'biology',t:'Biology',line:'Living things, the body and life itself',fam:'science',c11:'Biology',maths:'no',dom:{LIF:.55,CAR:.2,MAT:.15,PLA:.1},tilt:{n:.3,w:.4,s:.3},val:['impact','secure'],prob:['health','food','climate'],proxy:{bio:1}},
+  {id:'mathematics',t:'Mathematics',line:'Patterns, proof and the language of science',fam:'science',c11:'Mathematics',maths:'needs',dom:{NUM:.6,COD:.15,PHY:.15,MON:.1},tilt:{n:.7,w:.1,s:.2},val:['freedom','earn'],prob:['ai','space'],proxy:{maths:1}},
+  {id:'computer-science',t:'Computer Science',line:'Code, data and intelligent systems',fam:'science',c11:'Computer Science',maths:'needs',dom:{COD:.55,NUM:.25,PHY:.1,DES:.1},tilt:{n:.5,w:.2,s:.3},val:['create','earn','freedom'],prob:['ai','cities'],proxy:{comp:1,maths:.5}},
+  {id:'english',t:'English',line:'Language, literature and persuasion',fam:'humanities',c11:'English',maths:'no',dom:{WOR:.6,MED:.2,SOC:.1,MIN:.1},tilt:{n:.05,w:.9,s:.05},val:['create','freedom'],prob:['culture','justice'],proxy:{eng:1}},
+  {id:'history',t:'History',line:'Cause, change and the stories of the past',fam:'humanities',c11:'History',maths:'no',dom:{SOC:.55,WOR:.25,LAW:.1,PLA:.1},tilt:{n:.1,w:.8,s:.1},val:['respect','variety'],prob:['culture','justice'],proxy:{hist:1}},
+  {id:'geography',t:'Geography',line:'Places, climate and how people use the planet',fam:'humanities',c11:'Geography',maths:'helps',dom:{PLA:.5,SOC:.2,NUM:.15,DES:.15},tilt:{n:.2,w:.3,s:.5},val:['variety','impact'],prob:['climate','cities','food'],proxy:{geo:1}},
+  {id:'political-science',t:'Political Science',line:'Power, institutions and public life',fam:'humanities',c11:'Political Science',maths:'no',dom:{LAW:.4,SOC:.4,WOR:.1,MED:.1},tilt:{n:.2,w:.8,s:0},val:['impact','respect'],prob:['justice','inequality'],proxy:{pol:1}},
+  {id:'sociology',t:'Sociology',line:'People inside groups, systems and cultures',fam:'humanities',c11:'Sociology',maths:'no',dom:{SOC:.6,MIN:.2,LAW:.1,WOR:.1},tilt:{n:.3,w:.7,s:0},val:['impact','people'],prob:['inequality','justice','cities'],proxy:{pol:.4,hist:.3,eng:.3}},
+  {id:'psychology',t:'Psychology',line:'Minds, behaviour and why people do what they do',fam:'humanities',c11:'Psychology',maths:'helps',dom:{MIN:.55,CAR:.2,SOC:.15,NUM:.1},tilt:{n:.4,w:.5,s:.1},val:['people','impact'],prob:['mind','health'],proxy:{bio:.4,eng:.3,pol:.3}},
+  {id:'legal-studies',t:'Legal Studies',line:'Laws, rights and how justice works',fam:'humanities',c11:'Legal Studies',maths:'no',dom:{LAW:.55,WOR:.25,SOC:.2},tilt:{n:.2,w:.8,s:0},val:['respect','impact','earn'],prob:['justice','inequality'],proxy:{pol:.5,eng:.5}},
+  {id:'business-studies',t:'Business Studies',line:'How organisations are run and grown',fam:'commerce',c11:'Business Studies',maths:'helps',dom:{MON:.55,MED:.2,SOC:.15,LAW:.1},tilt:{n:.5,w:.5,s:0},val:['earn','people','freedom'],prob:['ai','cities'],proxy:{eco:.6,eng:.4}},
+  {id:'accountancy',t:'Accountancy',line:'Money, records and the health of organisations',fam:'commerce',c11:'Accountancy',maths:'helps',dom:{MON:.45,NUM:.45,COD:.1},tilt:{n:.8,w:.2,s:0},val:['secure','earn'],prob:[],proxy:{maths:.6,eco:.4}},
+  {id:'fine-arts',t:'Fine Arts and Design',line:'Making, seeing and designing',fam:'arts',c11:'Fine Arts',maths:'no',dom:{DES:.65,MED:.15,WOR:.1,PLA:.1},tilt:{n:.1,w:.2,s:.7},val:['create','freedom'],prob:['culture','cities'],proxy:{arts:1}},
+  {id:'environmental-science',t:'Environmental Science',line:'Ecosystems, climate and sustainability',fam:'science',c11:null,maths:'helps',dom:{PLA:.55,LIF:.2,MAT:.15,SOC:.1},tilt:{n:.3,w:.3,s:.4},val:['impact','variety'],prob:['climate','food'],proxy:{geo:.5,bio:.5}},
+  {id:'mass-media',t:'Media Studies',line:'Journalism, film and how messages travel',fam:'arts',c11:'Mass Media Studies',maths:'no',dom:{MED:.55,WOR:.25,DES:.15,SOC:.05},tilt:{n:0,w:.7,s:.3},val:['create','people','variety'],prob:['culture','justice'],proxy:{eng:.6,arts:.4}},
+  {id:'physical-education',t:'Physical Education and Sport Science',line:'The body in motion, training and sport',fam:'other',c11:'Physical Education',maths:'no',dom:{CAR:.35,LIF:.35,PHY:.15,MIN:.15},tilt:{n:.3,w:.3,s:.4},val:['people','balance'],prob:['health','mind'],proxy:{pe:1}},
+  {id:'entrepreneurship',t:'Entrepreneurship',line:'Spotting problems and building ventures',fam:'commerce',c11:'Entrepreneurship',maths:'helps',dom:{MON:.45,MED:.2,DES:.15,MIN:.1,COD:.1},tilt:{n:.4,w:.5,s:.1},val:['freedom','create','earn'],prob:['ai','cities'],proxy:{eco:.5,eng:.5}}
+];
+
+/* 14 degree directions for Class 11–12.
+   req = school subjects needed (all) · flag = subjects that open more of the field · learn = learning styles that suit it */
+const CLUSTERS = [
+  {id:'econ',t:'Economics and public policy',w:{economics:.6,mathematics:.2,'political-science':.2},req:[],flag:['mathematics'],flagNote:'Many top economics degrees ask for Class 12 Mathematics.',tests:'CUET, ISI admission test, university tests (Ashoka, Krea and others)',india:'BA or BSc (Hons) Economics; Economics and Public Policy',abroad:'BSc Economics; PPE',learn:['reading','fieldwork'],pages:['economics','political-science']},
+  {id:'business',t:'Business, finance and management',w:{'business-studies':.35,accountancy:.25,entrepreneurship:.2,economics:.2},req:[],flag:['mathematics'],flagNote:'IPMAT and several BBA entrance tests include a maths section.',tests:'IPMAT, CUET, NPAT, SET; CA Foundation alongside a degree',india:'BBA, B.Com (Hons), five-year IPM',abroad:'BSc Management, BBA, Finance',learn:['lectures','fieldwork'],pages:['business-studies','accountancy','entrepreneurship']},
+  {id:'data',t:'Data science and AI',w:{'computer-science':.45,mathematics:.4,economics:.15},req:['mathematics'],flag:[],tests:'JEE Main, CUET, university tests',india:'BTech in CSE or AI and Data Science; BSc Data Science',abroad:'BSc Computer Science or Data Science',learn:['labs','building'],pages:['computer-science','mathematics']},
+  {id:'engineering',t:'Engineering and technology',w:{physics:.45,mathematics:.35,chemistry:.1,'computer-science':.1},req:['physics','chemistry','mathematics'],flag:[],tests:'JEE Main and Advanced, BITSAT, state tests',india:'BTech or BE across disciplines',abroad:'BEng or MEng',learn:['lectures','labs','building'],pages:['physics','mathematics']},
+  {id:'physical',t:'Physical sciences and mathematics',w:{physics:.4,mathematics:.35,chemistry:.25},req:['mathematics','physics'],flag:[],tests:'IISER Aptitude Test, NEST, CUET',india:'BS-MS at IISERs and NISER; BSc (Hons) Physics, Chemistry or Maths',abroad:'BSc Physics, Chemistry or Mathematics',learn:['lectures','labs'],pages:['physics','chemistry','mathematics']},
+  {id:'life',t:'Life sciences and biotechnology',w:{biology:.55,chemistry:.3,'environmental-science':.15},req:['biology','chemistry'],flag:[],tests:'IISER Aptitude Test, NEST, CUET',india:'BSc Life Sciences or Biotechnology; BS-MS',abroad:'BSc Biological Sciences or Biochemistry',learn:['labs'],pages:['biology','chemistry']},
+  {id:'medicine',t:'Medicine and allied health',w:{biology:.55,chemistry:.3,psychology:.15},req:['physics','chemistry','biology'],flag:[],tests:'NEET UG',india:'MBBS, BDS, nursing, physiotherapy, pharmacy',abroad:'Routes vary by country; most need Biology and Chemistry',learn:['lectures','labs','fieldwork'],pages:['biology','chemistry']},
+  {id:'psych',t:'Psychology and behavioural science',w:{psychology:.65,sociology:.2,biology:.15},req:[],flag:[],tests:'CUET, university tests',india:'BA or BSc (Hons) Psychology',abroad:'BSc Psychology; Cognitive Science',learn:['reading','fieldwork'],pages:['psychology','sociology']},
+  {id:'law',t:'Law and governance',w:{'legal-studies':.45,'political-science':.35,history:.2},req:[],flag:[],tests:'CLAT, AILET, CUET',india:'Five-year BA LLB; BA Political Science',abroad:'LLB (UK); Politics and International Relations',learn:['reading','fieldwork'],pages:['legal-studies','political-science']},
+  {id:'humanities',t:'Humanities and social sciences',w:{history:.3,sociology:.3,english:.2,'political-science':.2},req:[],flag:[],tests:'CUET, university tests',india:'BA (Hons) History, Sociology, English and more',abroad:'BA History, Sociology, English',learn:['reading','fieldwork'],pages:['history','sociology','english']},
+  {id:'media',t:'Media, communication and journalism',w:{'mass-media':.5,english:.3,'fine-arts':.2},req:[],flag:[],tests:'CUET, university tests',india:'BA Journalism and Mass Communication',abroad:'BA Media and Communications',learn:['building','fieldwork'],pages:['mass-media','english']},
+  {id:'design',t:'Design and architecture',w:{'fine-arts':.55,physics:.15,mathematics:.15,'mass-media':.15},req:[],flag:['physics','chemistry','mathematics'],flagNote:'Architecture (B.Arch) needs Physics, Chemistry and Maths; design degrees don’t.',tests:'NID DAT, UCEED, NIFT; NATA or JEE Paper 2 for architecture',india:'B.Des; B.Arch',abroad:'BA Design; BArch',learn:['building','labs'],pages:['fine-arts','geography']},
+  {id:'environment',t:'Environment, climate and sustainability',w:{'environmental-science':.5,geography:.3,biology:.1,economics:.1},req:[],flagAny:['chemistry','biology'],flagNote:'Science routes need Chemistry or Biology; policy and geography routes don’t.',tests:'CUET, IISER Aptitude Test',india:'BSc Environmental Science; BA (Hons) Geography',abroad:'BSc Environmental Science; Geography',learn:['fieldwork','labs'],pages:['environmental-science','geography']},
+  {id:'liberal',t:'Liberal arts and interdisciplinary',w:{economics:.15,psychology:.15,history:.15,english:.15,'political-science':.15,sociology:.15,mathematics:.1},req:[],flag:[],tests:'University applications (Ashoka, Krea, FLAME and others)',india:'BA or BSc (Hons) in liberal arts, with a major and minor',abroad:'Liberal arts colleges; PPE and combined degrees',learn:['reading','fieldwork'],inter:true,pages:['economics','psychology','history']}
+];
+
+const FAMILY = [
+  {id:'none',t:'No'},{id:'medicine',t:'Medicine',subj:'biology',cl:'medicine'},{id:'engineering',t:'Engineering',subj:'physics',cl:'engineering'},
+  {id:'ca',t:'CA or commerce',subj:'accountancy',cl:'business'},{id:'law',t:'Law',subj:'legal-studies',cl:'law'},
+  {id:'civil',t:'Civil services',subj:'political-science',cl:'humanities'},{id:'other',t:'Something else'},{id:'skip',t:'Prefer not to say'}
+];
+
+/* SAMPLE school list for the prototype only. The plugin replaces this with CAP's partner list
+   (searched through CAPF_CONFIG.schoolsEndpoint) and holds student-added schools for review. */
+const SCHOOLS = [
+  'Delhi Public School, R.K. Puram, New Delhi','Delhi Public School, Mathura Road, New Delhi','Delhi Public School, Vasant Kunj, New Delhi','Delhi Public School, Noida','Delhi Public School, Gurugram Sector 45','Delhi Public School, Bangalore East','Delhi Public School, Hyderabad Nacharam',
+  'Modern School, Barakhamba Road, New Delhi','The Shri Ram School, Aravali, Gurugram','Vasant Valley School, New Delhi','Sanskriti School, New Delhi','Springdales School, Pusa Road, New Delhi','The Mother’s International School, New Delhi','St. Columba’s School, New Delhi','Amity International School, Noida','Pathways School, Gurugram','Heritage Xperiential Learning School, Gurugram',
+  'Mayo College, Ajmer','The Doon School, Dehradun','Welham Girls’ School, Dehradun','The Lawrence School, Sanawar',
+  'Cathedral and John Connon School, Mumbai','Dhirubhai Ambani International School, Mumbai','Bishop Cotton Boys’ School, Bengaluru','Inventure Academy, Bengaluru','La Martiniere for Boys, Kolkata','Calcutta International School, Kolkata','Hyderabad Public School, Begumpet','Chirec International School, Hyderabad','Sardar Patel Vidyalaya, New Delhi'
+];
+
+return {DOMAINS,HOLLAND,CITY,PAIRS,VALUES,PROBLEMS,JUNIOR_SUBJECTS,SENIOR_SUBJECTS,SUBJECTS,CLUSTERS,FAMILY,SCHOOLS};
+})();
+</script>
+<script>/* ══════════════════════════════════════════════════════════════════
+   CAP Subject Finder · engine · v0.9 (pilot build)
+   Runs entirely in the browser. Three hooks connect it to WordPress later:
+     CAPF_CONFIG.schoolsEndpoint     GET  ?q=   → [{name, city}]
+     CAPF_CONFIG.addSchoolEndpoint   POST {name, city}          (held for admin review)
+     CAPF_CONFIG.submitEndpoint      POST {type:'result'|'email_report', …}
+   Without them it works stand-alone with the sample data in data.js.
+   ══════════════════════════════════════════════════════════════════ */
+(function(){
+'use strict';
+const D=window.CAPF_DATA;
+const CFG=Object.assign({subjectBase:'/options-after/',sessionsUrl:'/sessions/',schoolsEndpoint:null,addSchoolEndpoint:null,submitEndpoint:null,storageKey:'capf_v1'},window.CAPF_CONFIG||{});
+const root=document.getElementById('capf');if(!root)return;
+const $=s=>root.querySelector(s),$$=s=>Array.from(root.querySelectorAll(s));
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const SUB=Object.fromEntries(D.SUBJECTS.map(s=>[s.id,s]));
+const CL=Object.fromEntries(D.CLUSTERS.map(c=>[c.id,c]));
+
+/* ── tracking: anonymous events; the email address is never sent with these ── */
+function track(name,props){
+  const detail=Object.assign({event:'capf_'+name,tool:'subject_finder'},props||{});
+  try{(window.dataLayer=window.dataLayer||[]).push(detail)}catch(e){}
+  try{window.dispatchEvent(new CustomEvent('capoa:track',{detail:detail}))}catch(e){}
+  try{if(window.CAPOA&&typeof window.CAPOA.track==='function')window.CAPOA.track(name,detail)}catch(e){}
+}
+function post(url,body){if(!url)return Promise.resolve(null);return fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body),credentials:'same-origin'}).then(r=>r.ok?r.json().catch(()=>({})):null).catch(()=>null)}
+
+/* ── state + save/resume (this device only) ── */
+const uid=()=>{try{return crypto.randomUUID()}catch(e){return 'id-'+Date.now().toString(36)+Math.random().toString(36).slice(2)}};
+function fresh(){return{v:1,id:uid(),screen:'intro',step:0,sub:null,cls:null,band:null,board:null,school:null,c0:null,explored:[],
+  city:[],pairOrder:null,pairs:[],grid:{},useful:[],current:[],wish:[],values:{top:[],least:null},problems:[],puzzles:[],next:{},c1:null,startedAt:null,doneAt:null}}
+let S=fresh();
+function save(){try{localStorage.setItem(CFG.storageKey,JSON.stringify(S))}catch(e){}}
+function load(){try{const r=JSON.parse(localStorage.getItem(CFG.storageKey)||'null');return r&&r.v===1?r:null}catch(e){return null}}
+const saved=load();
+
+/* ── flow ── */
+const ROUNDS=[
+  {id:'r0',n:0,t:'You',min:1},{id:'r1',n:1,t:'A Saturday in your city',min:1},{id:'r2',n:2,t:'This or that',min:5},
+  {id:'r3',n:3,t:'Your subjects',min:3},{id:'r4',n:4,t:'What matters to you',min:1},{id:'r5',n:5,t:'Three puzzles',min:3},
+  {id:'r6',n:6,t:'',min:1},{id:'close',n:7,t:'One last question',min:0}
+];
+const roundIndex=id=>ROUNDS.findIndex(r=>r.id===id);
+const minutesLeft=()=>{const i=roundIndex(S.screen);if(i<0)return 0;return ROUNDS.slice(i).reduce((a,r)=>a+r.min,0)};
+const r6Title=()=>S.band==='senior'?'Your next step':'Next year’s choices';
+function go(screen,sub){S.screen=screen;S.step=0;S.sub=sub||null;save();render();window.scrollTo({top:Math.max(0,root.getBoundingClientRect().top+window.scrollY-10),behavior:'auto'})}
+
+/* ── puzzles (generated drawings) ── */
+const ROT=c=>c.map(([x,y])=>[-y,x]),MIR=c=>c.map(([x,y])=>[-x,y]);
+const NORM=c=>{const mx=Math.min(...c.map(p=>p[0])),my=Math.min(...c.map(p=>p[1]));return c.map(([x,y])=>[x-mx,y-my]).sort((a,b)=>a[0]-b[0]||a[1]-b[1])};
+const rotN=(c,n)=>{let r=c;for(let i=0;i<n;i++)r=ROT(r);return NORM(r)};
+function polySVG(cells,size){const c=NORM(cells),u=size||16,w=Math.max(...c.map(p=>p[0]))+1,h=Math.max(...c.map(p=>p[1]))+1;
+  return '<svg viewBox="-4 -4 '+(w*u+8)+' '+(h*u+8)+'" class="pz-shape" aria-hidden="true">'+c.map(([x,y])=>'<rect x="'+x*u+'" y="'+y*u+'" width="'+u+'" height="'+u+'" rx="1.5"/>').join('')+'</svg>'}
+function foldSVG(twice){
+  const sq='<rect x="4" y="4" width="64" height="64" class="pz-paper"/>';
+  if(!twice)return '<svg viewBox="0 0 250 76" class="pz-draw" aria-hidden="true">'+sq+'<line x1="36" y1="4" x2="36" y2="68" class="pz-fold"/><path d="M78 36h26" class="pz-arrow"/><path d="M98 30l6 6-6 6" class="pz-arrow"/><rect x="114" y="4" width="32" height="64" class="pz-paper"/><path d="M156 36h26" class="pz-arrow"/><path d="M176 30l6 6-6 6" class="pz-arrow"/><rect x="192" y="4" width="32" height="64" class="pz-paper"/><circle cx="200" cy="22" r="5" class="pz-hole"/><text x="114" y="75" class="pz-cap">fold left onto right</text></svg>';
+  return '<svg viewBox="0 0 300 76" class="pz-draw" aria-hidden="true">'+sq+'<line x1="36" y1="4" x2="36" y2="68" class="pz-fold"/><path d="M76 36h18" class="pz-arrow"/><path d="M88 30l6 6-6 6" class="pz-arrow"/><rect x="102" y="4" width="32" height="64" class="pz-paper"/><line x1="102" y1="36" x2="134" y2="36" class="pz-fold"/><path d="M142 36h18" class="pz-arrow"/><path d="M154 30l6 6-6 6" class="pz-arrow"/><rect x="168" y="36" width="32" height="32" class="pz-paper"/><path d="M208 52h18" class="pz-arrow"/><path d="M220 46l6 6-6 6" class="pz-arrow"/><rect x="234" y="36" width="32" height="32" class="pz-paper"/><circle cx="255" cy="57" r="4.5" class="pz-hole"/><text x="102" y="75" class="pz-cap">fold in half, then top down</text></svg>'}
+function holesSVG(holes){return '<svg viewBox="0 0 72 72" class="pz-shape" aria-hidden="true"><rect x="4" y="4" width="64" height="64" class="pz-paper"/>'+holes.map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="5" class="pz-hole"/>').join('')+'</svg>'}
+function cubesSVG(){/* 3 × 2 base, two more on the back row */
+  const s=22,ox=86,oy=44;const P=(x,y,z)=>[ox+(x-y)*s*0.87,oy+(x+y)*s*0.5-z*s];
+  const cube=(x,y,z)=>{const t=P(x,y,z+1),r=P(x+1,y,z+1),b=P(x+1,y+1,z+1),l=P(x,y+1,z+1),r0=P(x+1,y,z),b0=P(x+1,y+1,z),l0=P(x,y+1,z);
+    const f=a=>a.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
+    return '<polygon points="'+f([t,r,b,l])+'" class="cb-top"/><polygon points="'+f([l,b,b0,l0])+'" class="cb-left"/><polygon points="'+f([b,r,r0,b0])+'" class="cb-right"/>'};
+  const list=[];for(let x=0;x<3;x++)for(let y=0;y<2;y++)list.push([x,y,0]);list.push([0,0,1],[1,0,1]);
+  list.sort((a,b)=>(a[2]-b[2])||((a[0]+a[1])-(b[0]+b[1])));
+  return '<svg viewBox="0 0 190 130" class="pz-draw" aria-hidden="true">'+list.map(c=>cube(...c)).join('')+'</svg>'}
+function cylSVG(){return '<svg viewBox="0 0 140 130" class="pz-draw" aria-hidden="true"><ellipse cx="70" cy="22" rx="40" ry="12" class="pz-paper"/><path d="M30 22v84M110 22v84" class="pz-line"/><path d="M30 106a40 12 0 0 0 80 0" class="pz-line"/><ellipse cx="70" cy="61" rx="45" ry="9" transform="rotate(-27.7 70 61)" class="pz-slicefill"/><text x="116" y="66" class="pz-cap">slice</text></svg>'}
+const shapeIcon={circle:'<svg viewBox="0 0 40 40" class="pz-shape"><circle cx="20" cy="20" r="14" class="pz-paper"/></svg>',ellipse:'<svg viewBox="0 0 40 40" class="pz-shape"><ellipse cx="20" cy="20" rx="16" ry="9" class="pz-paper"/></svg>',rect:'<svg viewBox="0 0 40 40" class="pz-shape"><rect x="6" y="11" width="28" height="18" class="pz-paper"/></svg>',tri:'<svg viewBox="0 0 40 40" class="pz-shape"><path d="M20 6L35 33H5z" class="pz-paper"/></svg>'};
+const JF=[[1,0],[2,0],[0,1],[1,1],[1,2]];/* F-pentomino (has a distinct mirror image) */
+const SH=[[0,0],[1,0],[1,1],[2,1],[3,1],[3,2],[1,2]];/* seven-square shape for Class 11–12 */
+const PUZZLES={
+ junior:[
+  {k:'n',q:'What comes next? 2, 6, 12, 20, 30, …',o:['36','40','42','44'],a:2},
+  {k:'w',q:'Seed is to tree as egg is to …',o:['nest','bird','shell','feather'],a:1},
+  {k:'s',q:'Which one is the first shape turned, not flipped?',fig:()=>polySVG(JF,18),opt:()=>[polySVG(rotN(JF,1)),polySVG(rotN(MIR(JF),1)),polySVG(rotN(MIR(JF),2)),polySVG([[0,0],[1,0],[2,0],[1,1],[1,2]])],a:0},
+  {k:'n',q:'A shirt costs ₹800 after a 20% discount. What was the price before?',o:['₹960','₹1,000','₹1,040','₹1,600'],a:1},
+  {k:'w',q:'Which word doesn’t belong?',o:['brief','concise','terse','wordy'],a:3},
+  {k:'s',q:'A square sheet is folded and one hole punched. Which pattern do you see when it’s opened?',fig:()=>foldSVG(false),opt:()=>[holesSVG([[44,22]]),holesSVG([[28,22],[44,22]]),holesSVG([[44,22],[44,50]]),holesSVG([[28,22],[44,50]])],a:1},
+  {k:'n',q:'40 students: 25 play cricket, 18 play football, 8 play both. How many play neither?',o:['3','5','8','13'],a:1},
+  {k:'w',q:'Everyone in the robotics club is also in the maths circle. Riya isn’t in the maths circle. What must be true?',o:['Riya is in the robotics club','Riya isn’t in the robotics club','Riya dislikes maths','We can’t tell anything'],a:1},
+  {k:'s',q:'How many cubes are in this stack? Every cube rests on one below it.',fig:()=>cubesSVG(),o:['6','7','8','9'],a:2}
+ ],
+ senior:[
+  {k:'n',q:'What comes next? 3, 5, 9, 17, 33, …',o:['49','57','65','66'],a:2},
+  {k:'w',q:'Thermometer is to temperature as seismograph is to …',o:['pressure','earthquakes','wind','rain'],a:1},
+  {k:'s',q:'Which one is the first shape rotated, not mirrored?',fig:()=>polySVG(SH,16),opt:()=>[polySVG(rotN(MIR(SH),1),14),polySVG(rotN(MIR(SH),3),14),polySVG(rotN(SH,3),14),polySVG(rotN(MIR(SH),2),14)],a:2},
+  {k:'n',q:'A price rises 25%, then falls 20%. What’s the overall change?',o:['5% higher','5% lower','No change','1% lower'],a:2},
+  {k:'w',q:'Cities that added bus lanes saw traffic fall, but they also raised parking fees that year. What’s the fairest conclusion?',o:['Bus lanes cut traffic','Parking fees cut traffic','We can’t tell how much came from the bus lanes','Traffic would have fallen anyway'],a:2},
+  {k:'s',q:'A square sheet is folded twice and one hole punched near the corner. What do you see when it’s opened?',fig:()=>foldSVG(true),opt:()=>[holesSVG([[15,57],[57,57]]),holesSVG([[15,15],[57,15],[15,57],[57,57]]),holesSVG([[15,15],[36,36],[57,57]]),holesSVG([[57,15],[57,57]])],a:1},
+  {k:'n',q:'5 machines make 5 parts in 5 minutes. How long do 100 machines take to make 100 parts?',o:['1 minute','5 minutes','20 minutes','100 minutes'],a:1},
+  {k:'w',q:'Closest in meaning to “pragmatic”:',o:['idealistic','practical','dramatic','careless'],a:1},
+  {k:'s',q:'A cylinder is sliced at a slant. What shape is the cut face?',fig:()=>cylSVG(),opt:()=>[shapeIcon.circle+'<span>Circle</span>',shapeIcon.ellipse+'<span>Ellipse</span>',shapeIcon.rect+'<span>Rectangle</span>',shapeIcon.tri+'<span>Triangle</span>'],a:1}
+ ]
+};
+
+/* ── city icons ── */
+const ICON={metro:'M6 6h20v15H6zM6 15h20M11 25l-3 4M21 25l3 4M10 21h1M21 21h1',river:'M3 10c4-3 6 3 10 0s6 3 10 0 6 3 6 3M3 17c4-3 6 3 10 0s6 3 10 0 6 3 6 3M3 24c4-3 6 3 10 0s6 3 10 0',virus:'M16 9a7 7 0 1 1 0 14 7 7 0 0 1 0-14zM16 4v5M16 23v5M4 16h5M23 16h5M8 8l3.5 3.5M20.5 20.5L24 24M24 8l-3.5 3.5M11.5 20.5L8 24',mind:'M9 14a7 7 0 0 1 14 0c0 3-2 4-2 7v3h-8v-3c0-3-4-3-4-7zM13 28h6',app:'M10 4h12v24H10zM14 24h4M13 10h6M13 14h6',bridge:'M3 22h26M5 22v6M27 22v6M5 22c4-9 18-9 22 0M10 16v6M16 14v8M22 16v6',vote:'M6 14h20v14H6zM11 14l5-9 6 3-4 6M12 21h8',heritage:'M4 28h24M6 12h20M16 4l11 8H5zM9 12v16M14 12v16M18 12v16M23 12v16',battery:'M5 10h20v12H5zM25 14h3v4h-3M13 12l-3 5h6l-3 5',shop:'M5 13h22v15H5zM4 13l3-8h18l3 8M13 28v-8h6v8',film:'M5 9h16v14H5zM21 13l6-3v12l-6-3M9 9V6M17 9V6',street:'M10 4l-4 24M22 4l4 24M16 6v3M16 13v3M16 20v3'};
+const icon=k=>'<svg viewBox="0 0 32 32" class="ci" aria-hidden="true"><path d="'+(ICON[k]||'')+'"/></svg>';
+
+/* ═════════ scoring ═════════ */
+function domainScores(){
+  const keys=Object.keys(D.DOMAINS),chosen={},exp={},city={};keys.forEach(k=>{chosen[k]=0;exp[k]=0;city[k]=0});
+  S.city.forEach(id=>{const c=D.CITY.find(x=>x.id===id);if(c)c.d.forEach(d=>city[d]+=1)});
+  S.pairs.forEach((p,i)=>{if(!p)return;const pair=D.PAIRS[p.i];pair.forEach((opt,side)=>{opt[2].forEach(d=>{exp[d]+=1;const w=p.c===2?.5:(p.c===side?1:0);chosen[d]+=w})})});
+  const raw={};keys.forEach(k=>{const ps=exp[k]?chosen[k]/exp[k]:0;const cs=Math.min(1,city[k]/2);raw[k]=100*(0.72*ps+0.28*cs)});
+  const vals=keys.map(k=>raw[k]),mn=Math.min(...vals),mx=Math.max(...vals);
+  const norm={};keys.forEach(k=>{norm[k]=mx>mn?(raw[k]-mn)/(mx-mn)*100:50});
+  return {raw,norm};
+}
+function selfBelief(){
+  const out={};
+  if(S.band==='junior'){
+    const val={};Object.entries(S.grid).forEach(([k,g])=>{if(g&&g.g!=null)val[k]=((g.g+g.e)/4)*100+(S.useful.includes(k)?10:0)});
+    D.SUBJECTS.forEach(s=>{let a=0,w=0;Object.entries(s.proxy).forEach(([k,pw])=>{if(val[k]!=null){a+=val[k]*pw;w+=pw}});out[s.id]=w?clamp(a/w,0,100):null});
+  }else{
+    const acc={},wt={};
+    S.current.forEach(id=>{const g=S.grid[id];const ss=D.SENIOR_SUBJECTS.find(x=>x.id===id);if(!ss||!g||g.g==null)return;const v=((g.g+g.e)/4)*100;Object.entries(ss.m).forEach(([sid,mw])=>{acc[sid]=(acc[sid]||0)+v*mw;wt[sid]=(wt[sid]||0)+mw})});
+    S.wish.forEach(id=>{const ss=D.SENIOR_SUBJECTS.find(x=>x.id===id);if(!ss)return;Object.entries(ss.m).forEach(([sid,mw])=>{acc[sid]=(acc[sid]||0)+75*mw*.7;wt[sid]=(wt[sid]||0)+mw*.7})});
+    D.SUBJECTS.forEach(s=>{out[s.id]=wt[s.id]?clamp(acc[s.id]/wt[s.id],0,100):null});
+  }
+  return out;
+}
+function tiltScores(){
+  const k={n:{c:0,ms:0,t:0},w:{c:0,ms:0,t:0},s:{c:0,ms:0,t:0}};
+  S.puzzles.forEach(p=>{if(!p)return;const x=k[p.k];x.t++;if(p.ok){x.c++;x.ms+=p.ms}});
+  const raw={};Object.entries(k).forEach(([kk,x])=>{const acc=x.t?x.c/x.t:0;const sp=x.c?1-Math.min(1,(x.ms/x.c)/60000):0;raw[kk]=acc+sp*0.08});
+  const v=Object.values(raw),mn=Math.min(...v),mx=Math.max(...v);const norm={};Object.keys(raw).forEach(kk=>{norm[kk]=mx>mn?(raw[kk]-mn)/(mx-mn)*100:50});
+  const order=Object.keys(raw).sort((a,b)=>raw[b]-raw[a]);
+  return {raw,norm,order,acc:Object.fromEntries(Object.entries(k).map(([kk,x])=>[kk,x.c]))};
+}
+function compute(){
+  const dom=domainScores(),sb=selfBelief(),tl=tiltScores();
+  const topVals=S.values.top,least=S.values.least;
+  const subj=D.SUBJECTS.map(s=>{
+    let I=0,w=0;Object.entries(s.dom).forEach(([d,dw])=>{I+=dom.norm[d]*dw;w+=dw});I=w?I/w:0;
+    const Sb=sb[s.id];
+    let T=0;Object.entries(s.tilt).forEach(([kk,tw])=>T+=tl.norm[kk]*tw);
+    const mt=s.val.filter(v=>topVals.includes(v)).length,ml=s.val.includes(least)?1:0;const V=clamp(30+35*mt-30*ml,0,100);
+    const pm=s.prob.filter(p=>S.problems.includes(p)).length;const P=clamp(25+40*pm,0,100);
+    const parts=[[.40,I],[.25,Sb],[.15,T],[.10,V],[.10,P]].filter(x=>x[1]!=null);const tw=parts.reduce((a,x)=>a+x[0],0);
+    const M=parts.reduce((a,x)=>a+x[0]*x[1],0)/tw;
+    return {id:s.id,s,I,S:Sb,T,V,P,M};
+  }).sort((a,b)=>b.M-a.M);
+  subj.forEach((x,i)=>x.rank=i+1);
+  const byId=Object.fromEntries(subj.map(x=>[x.id,x]));
+  /* Holland */
+  const H={R:0,I:0,A:0,S:0,E:0,C:0},HW={R:0,I:0,A:0,S:0,E:0,C:0};
+  Object.entries(D.DOMAINS).forEach(([d,def])=>Object.entries(def.h).forEach(([t,w])=>{H[t]+=dom.norm[d]*w;HW[t]+=w}));
+  Object.keys(H).forEach(t=>H[t]=HW[t]?H[t]/HW[t]:0);
+  /* confidence */
+  const gap=subj[0].M-subj[3].M;let conf=0;if(gap>=12)conf+=2;else if(gap>=6)conf+=1;
+  if(subj[0].S!=null&&subj[0].S>=60)conf+=1;
+  const cant=S.pairs.filter(p=>p&&p.c===2).length,sideA=S.pairs.filter(p=>p&&p.c===0).length,sideB=S.pairs.filter(p=>p&&p.c===1).length;
+  const times=S.pairs.filter(p=>p).map(p=>p.ms).sort((a,b)=>a-b);const med=times.length?times[Math.floor(times.length/2)]:9999;
+  const flags=[];if(cant>=8){conf-=1;flags.push('many_cant_choose')}if(Math.max(sideA,sideB)>=20){conf-=2;flags.push('same_side')}if(med<1500){conf-=1;flags.push('very_fast')}
+  const confidence=conf>=3?'high':conf>=1?'medium':'low';
+  /* clusters (Class 11–12), combinations (Class 9–10) */
+  const clusters=D.CLUSTERS.map(c=>{let a=0,w=0;Object.entries(c.w).forEach(([sid,cw])=>{a+=byId[sid].M*cw;w+=cw});let sc=a/w;
+    const ls=(S.next.learn||[]);sc+=Math.min(12,6*c.learn.filter(l=>ls.includes(l)).length);
+    if(c.inter){sc+=S.next.combine==='yes'?8:S.next.combine==='no'?-6:2}
+    return {id:c.id,c,score:sc}}).sort((a,b)=>b.score-a.score);
+  clusters.forEach((x,i)=>x.rank=i+1);
+  return {dom,sb,tl,subj,byId,H,confidence,flags,clusters};
+}
+/* what school subjects a student has (Class 11–12), for eligibility */
+function hasSet(){const set=new Set();S.current.forEach(id=>{const ss=D.SENIOR_SUBJECTS.find(x=>x.id===id);if(!ss)return;Object.entries(ss.m).forEach(([sid,w])=>{if(w>=.8)set.add(sid)})});return set}
+function status(cluster,set){const c=cluster;if(c.req.some(r=>!set.has(r)))return 'closed';if((c.flag||[]).some(r=>!set.has(r)))return 'flag';if(c.flagAny&&!c.flagAny.some(r=>set.has(r)))return 'flag';return 'open'}
+const STATUS_TXT={open:'Open with your subjects',flag:'Open, with a condition',closed:'Closed by your current subjects'};
+function combos(R){
+  const opts=D.SUBJECTS.filter(s=>s.c11&&s.id!=='english').map(s=>s.id);const out=[];
+  for(let a=0;a<opts.length;a++)for(let b=a+1;b<opts.length;b++)for(let c=b+1;c<opts.length;c++)for(let d=c+1;d<opts.length;d++){
+    const set=[opts[a],opts[b],opts[c],opts[d]],has=x=>set.includes(x);
+    if(has('physics')&&!has('chemistry'))continue;if(has('chemistry')&&!(has('physics')||has('biology')))continue;
+    if(has('computer-science')&&!has('mathematics')&&R.byId['computer-science'].rank>6)continue;
+    const avg=set.reduce((x,s)=>x+R.byId[s].M,0)/4;
+    const st=new Set(set.concat(['english']));let open=0,tot=0;
+    R.clusters.forEach(cl=>{const v=status(cl.c,st);tot+=cl.score;open+=cl.score*(v==='open'?1:v==='flag'?.5:0)});
+    out.push({set,avg,openness:open/tot*100});
+  }
+  out.sort((x,y)=>y.avg-x.avg);const best=out[0];
+  const keep=out.filter(o=>o.set.join()!==best.set.join()&&o.set.filter(s=>R.byId[s].rank<=6).length>=2).map(o=>Object.assign(o,{k:.5*o.openness+.5*o.avg})).sort((x,y)=>y.k-x.k)[0]||out[1];
+  return {best,keep};
+}
+function ledger(set,R){const st=new Set(set.concat(['english']));return R.clusters.slice(0,7).map(cl=>({cl,st:status(cl.c,st)}))}
+function because(sid){
+  const s=SUB[sid],items=[];
+  S.city.forEach(id=>{const c=D.CITY.find(x=>x.id===id);const w=c.d.reduce((a,d)=>a+(s.dom[d]||0),0);if(w>0)items.push({w:w+.05,v:'picked',t:c.s})});
+  S.pairs.forEach(p=>{if(!p||p.c===2)return;const opt=D.PAIRS[p.i][p.c];const w=opt[2].reduce((a,d)=>a+(s.dom[d]||0),0);if(w>0)items.push({w,v:'chose',t:opt[1]})});
+  items.sort((a,b)=>b.w-a.w);const seen=new Set(),top=[];for(const it of items){if(seen.has(it.t))continue;seen.add(it.t);top.push(it);if(top.length===2)break}
+  if(!top.length)return '';if(top.length===1)return 'You '+top[0].v+' '+top[0].t+'.';
+  return top[0].v===top[1].v?'You '+top[0].v+' '+top[0].t+' and '+top[1].t+'.':'You '+top[0].v+' '+top[0].t+' and '+top[1].v+' '+top[1].t+'.';
+}
+function because2(sid,R){
+  const x=R.byId[sid],s=SUB[sid];
+  if(x.S!=null&&x.S>=70)return S.band==='junior'?'You put its school subjects in your strong and enjoyable corner.':'You rate yourself strongly in the subjects it builds on.';
+  const k=R.tl.order[0];const top=Object.entries(s.tilt).sort((a,b)=>b[1]-a[1])[0][0];
+  if(k===top&&R.tl.acc[k]>=2)return {n:'Number puzzles',w:'Word puzzles',s:'Shape puzzles'}[k]+' came most naturally to you, and this subject leans on them.';
+  const p=s.prob.find(pp=>S.problems.includes(pp));if(p)return 'It connects to '+D.PROBLEMS.find(q=>q.id===p).t.toLowerCase()+', one of the problems you picked.';
+  const v=s.val.find(vv=>S.values.top.includes(vv));if(v)return 'It suits what you value: '+D.VALUES.find(q=>q.id===v).t.toLowerCase()+'.';
+  return '';
+}
+function subjectUrl(sid){const b={cbse:'cbse',icse:'icse',ib:'ib',cambridge:'camb'}[S.board]||'';return CFG.subjectBase+sid+'/?from=finder'+(b?'&board='+b:'')}
+
+/* ═════════ rendering ═════════ */
+const main=$('#capf-main'),bar=$('#capf-progress');
+function topbar(){
+  const i=roundIndex(S.screen),r=ROUNDS[i];
+  if(i<0){bar.hidden=true;return}
+  bar.hidden=false;
+  const title=r.id==='r6'?r6Title():r.t;
+  $('#capf-round').innerHTML=(r.id==='close'?'Almost done':'Round '+r.n+' of 6')+' <b>'+esc(title)+'</b>';
+  $('#capf-left').textContent=minutesLeft()>0?'about '+minutesLeft()+' min left':'';
+  $('#capf-bar').style.width=(Math.min(1,(i+ (S.screen==='r2'?S.step/24:S.screen==='r5'?S.step/9:0))/ROUNDS.length)*100).toFixed(1)+'%';
+}
+function render(){topbar();const f=SCREENS[S.screen];main.innerHTML='';if(f)f();main.setAttribute('data-screen',S.screen)}
+function head(eyebrow,title,lede){return '<div class="q-head"><div class="eyebrow">'+eyebrow+'</div><h2 class="q-h">'+title+'</h2>'+(lede?'<p class="q-lede">'+lede+'</p>':'')+'</div>'}
+function nav(label,ok,back){return '<div class="q-nav">'+(back?'<button class="btn outline" data-act="back">Back</button>':'<span></span>')+'<button class="btn" data-act="next" '+(ok?'':'disabled')+'>'+label+'</button></div>'}
+function reveal(title,lines,nextLabel){
+  main.innerHTML='<div class="reveal"><span class="tag acc">What we’re noticing</span><h2 class="q-h">'+title+'</h2>'+lines.map(l=>'<p>'+l+'</p>').join('')+'<button class="btn" data-act="next">'+(nextLabel||'Next round')+' →</button></div>';
+}
+const SCREENS={};
+
+/* intro */
+SCREENS.intro=function(){
+  const resume=saved&&saved.screen!=='intro'?saved:null;
+  main.innerHTML=
+  '<section class="intro">'+
+   '<div class="intro-l">'+
+    '<div class="aud"><span class="for">Class 9 to 12</span><span class="sub">College Access Program · Subject Finder</span></div>'+
+    '<h1 class="hero-h">Find the subjects that <em class="s">fit you</em>.</h1>'+
+    '<p class="lede">A 15-minute assessment that looks at what pulls you, what you’re good at and what matters to you. Then it shows the subjects and degree directions worth exploring, and exactly why.</p>'+
+    '<div class="hero-ctas">'+(resume?'<button class="btn accent" data-act="resume">'+(resume&&resume.screen==='result'?'See your last result':'Continue where you left off')+'</button><button class="btn outline" data-act="restart">Start again</button>':'<button class="btn accent" data-act="start">Start the assessment</button>')+'</div>'+
+    '<div class="hchips"><span>About 15 minutes</span><span>No sign-up</span><span>Free 4-page report</span><span>Saves as you go</span></div>'+
+   '</div>'+
+   '<aside class="note">'+
+    '<span class="tag">Before you start · for students and parents</span>'+
+    '<h3>An assessment, not an exam, and not a verdict.</h3>'+
+    '<dl>'+
+     '<div><dt>What it is</dt><dd>A research-based assessment of your interests, how you see your school subjects, three short puzzles and what you value. Universities and careers researchers have found this mix predicts the subjects students stay with and do well in.</dd></div>'+
+     '<div><dt>What it isn’t</dt><dd>A test you can fail, or a decision made for you. There are no right answers. It shows you where to look, and why, so you can explore before you choose.</dd></div>'+
+     '<div><dt>What you get</dt><dd>Your top three matches with the reasons behind them. Class 9 and 10: two Class 11 subject combinations and what each keeps open. Class 11 and 12: degree directions and what your subjects allow. Plus a report to talk through at home or with a counsellor.</dd></div>'+
+     '<div><dt>Your privacy</dt><dd>We don’t ask for your name. Email is optional, only if you want the report sent to you.</dd></div>'+
+    '</dl>'+
+   '</aside>'+
+  '</section>';
+};
+/* round 0 */
+SCREENS.r0=function(){
+  const boards=[['cbse','CBSE'],['icse','ICSE / ISC'],['ib','IB'],['cambridge','Cambridge'],['state','State board'],['other','Other']];
+  main.innerHTML=head('Round 0 · 1 minute','First, a little about <em class="s">you</em>','This sets up the questions that follow. Only your class is needed.')+
+  '<div class="field"><label class="f-l">Which class are you in?</label><div class="tiles">'+[9,10,11,12].map(c=>'<button class="tile'+(S.cls===c?' on':'')+'" data-cls="'+c+'"><b>Class '+c+'</b><span>'+({9:'Planning ahead',10:'Choosing Class 11 subjects',11:'Planning a degree',12:'Choosing a degree'})[c]+'</span></button>').join('')+'</div></div>'+
+  '<div class="field"><label class="f-l">Your board</label><div class="seg">'+boards.map(b=>'<button class="pill" data-board="'+b[0]+'" aria-pressed="'+(S.board===b[0])+'">'+b[1]+'</button>').join('')+'</div></div>'+
+  '<div class="field"><label class="f-l" for="capf-school">Your school <small>Optional</small></label>'+
+   '<div class="school"><input id="capf-school" type="text" autocomplete="off" placeholder="Start typing your school’s name" value="'+esc(S.school?S.school.name:'')+'"><div class="sugg" id="capf-sugg" hidden></div></div>'+
+   '<div class="addschool" id="capf-add" hidden><p>Add your school and we’ll include it for the next student.</p><div class="row2"><input id="capf-add-name" type="text" placeholder="School name"><input id="capf-add-city" type="text" placeholder="City"></div><button class="btn small" data-act="addschool">Add my school</button></div>'+
+   (S.school&&S.school.added?'<p class="note-ok">Added: '+esc(S.school.name)+(S.school.city?', '+esc(S.school.city):'')+'. Thank you.</p>':'')+
+  '</div>'+
+  slider('c0','How sure are you about what you want to study next?',S.c0)+
+  '<div class="field"><label class="f-l">What have you done to find out so far? <small>Tick any</small></label><div class="seg">'+
+   [['talked','Talked to someone who studies or works in it'],['read','Read or watched about it'],['tried','Tried a course, competition or project'],['workshop','Done a workshop or internship'],['nothing','Nothing yet, and that’s fine']].map(o=>'<button class="pill" data-exp="'+o[0]+'" aria-pressed="'+S.explored.includes(o[0])+'">'+o[1]+'</button>').join('')+'</div></div>'+
+  nav('Next',!!S.cls,false);
+  wireSchool();
+};
+function slider(key,label,val){const v=val==null?50:val;return '<div class="field"><label class="f-l" for="capf-'+key+'">'+label+'</label><input class="range" type="range" min="0" max="100" step="1" id="capf-'+key+'" data-slider="'+key+'" value="'+v+'"><div class="range-k"><span>Not at all sure</span><span>Very sure</span></div></div>'}
+function wireSchool(){
+  const inp=$('#capf-school'),sug=$('#capf-sugg'),add=$('#capf-add');if(!inp)return;let reqId=0;
+  const show=list=>{const q=inp.value.trim();
+    if(!q){sug.hidden=true;return}
+    sug.innerHTML=list.slice(0,6).map(n=>'<button type="button" data-school="'+esc(n)+'">'+esc(n)+'</button>').join('')+'<button type="button" class="sugg-add" data-act="showadd">Can’t find it? Add your school</button>';
+    sug.hidden=false};
+  inp.addEventListener('input',()=>{const q=inp.value.trim().toLowerCase();S.school=q?{name:inp.value.trim(),listed:false}:null;save();
+    const local=D.SCHOOLS.filter(n=>n.toLowerCase().includes(q));
+    if(CFG.schoolsEndpoint&&q.length>=2){const my=++reqId;fetch(CFG.schoolsEndpoint+(CFG.schoolsEndpoint.includes('?')?'&':'?')+'q='+encodeURIComponent(q)).then(r=>r.json()).then(list=>{if(my!==reqId)return;show((list||[]).map(x=>x.city?x.name+', '+x.city:x.name))}).catch(()=>show(local))}else show(local)});
+  sug.addEventListener('click',e=>{const b=e.target.closest('[data-school]');if(b){S.school={name:b.dataset.school,listed:true};inp.value=b.dataset.school;sug.hidden=true;save();return}
+    if(e.target.closest('[data-act="showadd"]')){add.hidden=false;sug.hidden=true;$('#capf-add-name').value=inp.value;$('#capf-add-city').focus()}});
+}
+/* round 1 */
+SCREENS.r1=function(){
+  if(S.sub==='reveal'){const dom=domainScores();const top=Object.entries(dom.norm).sort((a,b)=>b[1]-a[1]).map(x=>D.DOMAINS[x[0]].name.toLowerCase());reveal('Your picks lean towards '+top[0]+'.',['Three problems is a small sample, so the next round asks 24 quick questions to see if the pattern holds.']);return}
+  main.innerHTML=head('Round 1 · 1 minute','A Saturday in <em class="s">your city</em>','Twelve things need solving this weekend. Pick the three you’d most want to work on.')+
+  '<div class="city">'+D.CITY.map(c=>{const on=S.city.includes(c.id);return '<button class="ccard'+(on?' on':'')+'" data-city="'+c.id+'" aria-pressed="'+on+'">'+icon(c.i)+'<span>'+esc(c.t)+'</span>'+(on?'<i>'+(S.city.indexOf(c.id)+1)+'</i>':'')+'</button>'}).join('')+'</div>'+
+  '<p class="count">'+S.city.length+' of 3 picked</p>'+nav('Next',S.city.length===3,true);
+};
+/* round 2 */
+SCREENS.r2=function(){
+  if(!S.pairOrder){S.pairOrder=shuffle(D.PAIRS.map((_,i)=>i));save()}
+  if(S.step>=24){const R=domainScores();const top=Object.entries(R.norm).sort((a,b)=>b[1]-a[1]).slice(0,2).map(x=>D.DOMAINS[x[0]].name.toLowerCase());
+    reveal('You keep choosing '+top[0]+' and '+top[1]+'.',['That’s a pattern across 24 choices, not one answer. Next, how you see the subjects you already study.']);return}
+  const i=S.pairOrder[S.step],p=D.PAIRS[i];S._t0=performance.now();
+  main.innerHTML=head('Round 2 · '+(S.step+1)+' of 24','Which would you <em class="s">rather</em> do?','')+
+  '<div class="pair" data-pair="'+i+'"><button class="popt" data-side="0"><span class="k">A</span>'+esc(p[0][0])+'</button><span class="or">or</span><button class="popt" data-side="1"><span class="k">B</span>'+esc(p[1][0])+'</button></div>'+
+  '<div class="pair-foot">'+(S.step>0?'<button class="link" data-act="undo">← Back one</button>':'<span></span>')+'<button class="link" data-side="2">Can’t choose</button></div>'+
+  '<div class="dots">'+Array.from({length:24},(_,k)=>'<i class="'+(k<S.step?'on':'')+'"></i>').join('')+'</div>';
+};
+/* round 3 */
+const CELLS_G=['Not yet','Okay','Strong'],CELLS_E=['Love it','Somewhat','Not really'];
+function gridItems(){if(S.band==='junior')return D.JUNIOR_SUBJECTS.map(s=>({id:s.id,t:(S.board&&!['cbse','state','other'].includes(S.board)&&s.tAlt)?s.tAlt:s.t}));return S.current.map(id=>({id,t:D.SENIOR_SUBJECTS.find(x=>x.id===id).t}))}
+SCREENS.r3=function(){
+  const sub=S.sub||(S.band==='senior'?'current':'grid');S.sub=sub;
+  if(sub==='current'){
+    main.innerHTML=head('Round 3 · 2 minutes','Which subjects are you <em class="s">taking</em> now?','Tick all of them, including English.')+
+    '<div class="seg chips">'+D.SENIOR_SUBJECTS.map(s=>'<button class="pill" data-cur="'+s.id+'" aria-pressed="'+S.current.includes(s.id)+'">'+s.t+'</button>').join('')+'</div>'+nav('Next',S.current.length>=3,true);return}
+  if(sub==='grid'){
+    const items=gridItems(),placed=it=>S.grid[it.id]&&S.grid[it.id].g!=null,skipped=it=>S.grid[it.id]&&S.grid[it.id].skip;
+    const tray=items.filter(it=>!placed(it)&&!skipped(it));
+    main.innerHTML=head('Round 3 · 2 minutes','Place your <em class="s">subjects</em>','Tap a subject, then tap the square that fits. How good are you at it, and how much do you enjoy it?'+(S.band==='junior'?' Not taking one? Drop it in “I don’t take this”.':''))+
+    '<div class="tray" id="capf-tray">'+(tray.length?tray.map(it=>chip(it)).join(''):'<span class="tray-done">All placed. Tap any subject to move it.</span>')+'</div>'+
+    '<div class="gridwrap"><div class="g-ylab">How much I enjoy it →</div><div class="grid9">'+
+     CELLS_E.map((el,ei)=>CELLS_G.map((gl,gi)=>{const e=2-ei;const inCell=items.filter(it=>placed(it)&&S.grid[it.id].g===gi&&S.grid[it.id].e===e);
+       return '<div class="cell'+(gi===2&&e===2?' sweet':'')+'" data-g="'+gi+'" data-e="'+e+'"><span class="cell-l">'+(gi===0?'<b>'+el+'</b>':'')+'</span>'+inCell.map(it=>chip(it)).join('')+'</div>'}).join('')).join('')+
+    '</div><div class="g-xlab">'+CELLS_G.map(g=>'<span>'+g+'</span>').join('')+'</div><div class="g-xt">How good I am →</div></div>'+
+    (S.band==='junior'?'<div class="skipzone" data-skip="1"><span>I don’t take this</span>'+items.filter(skipped).map(it=>chip(it)).join('')+'</div>':'')+
+    nav('Next',tray.length===0,true);
+    wireGrid();return}
+  if(sub==='useful'){
+    const items=gridItems().filter(it=>S.grid[it.id]&&!S.grid[it.id].skip);
+    main.innerHTML=head('Round 3 · 2 minutes','Which three feel most <em class="s">useful</em> for your future?','However much you enjoy them.')+
+    '<div class="seg chips">'+items.map(it=>'<button class="pill" data-use="'+it.id+'" aria-pressed="'+S.useful.includes(it.id)+'">'+esc(it.t)+'</button>').join('')+'</div><p class="count">'+S.useful.length+' of 3</p>'+nav('Next',S.useful.length===3,true);return}
+  if(sub==='reveal'){const items=gridItems().filter(it=>S.grid[it.id]&&S.grid[it.id].g===2&&S.grid[it.id].e===2).map(it=>it.t);
+    reveal(items.length?'Your sweet spot: '+items.slice(0,3).join(', ')+'.':'No subject in your strong-and-love-it corner yet.',[items.length?'Subjects you’re good at and enjoy are one of the strongest signals for what you’ll do well in next.':'That’s common, and it’s why this assessment looks at your interests too.','Next: what matters to you.']);return}
+  if(sub==='wish'){
+    const others=D.SENIOR_SUBJECTS.filter(s=>!S.current.includes(s.id));
+    main.innerHTML=head('Round 3 · 2 minutes','Any subject you <em class="s">wish</em> you took?','Pick up to two, or skip.')+
+    '<div class="seg chips">'+others.map(s=>'<button class="pill" data-wish="'+s.id+'" aria-pressed="'+S.wish.includes(s.id)+'">'+s.t+'</button>').join('')+'</div>'+nav(S.wish.length?'Next':'Skip',true,true);return}
+};
+function chip(it){const sel=S._sel===it.id;return '<button type="button" class="chip'+(sel?' sel':'')+'" data-chip="'+it.id+'">'+esc(it.t)+'</button>'}
+function wireGrid(){}
+/* drag a chip onto a square (mouse, pen or touch); tapping is handled in the click handler */
+let drag=null,ghost=null,suppress=false;
+const hitTarget=(x,y)=>{const rn=root.getRootNode?root.getRootNode():document;const ctx=rn&&rn.elementFromPoint?rn:document;const el=ctx.elementFromPoint(x,y);return el&&el.closest?el.closest('.cell,.skipzone'):null};
+root.addEventListener('pointerdown',e=>{const c=e.target.closest('.chip');if(!c||S.screen!=='r3')return;drag={id:c.dataset.chip,x:e.clientX,y:e.clientY,el:c,on:false}});
+root.addEventListener('pointermove',e=>{if(!drag)return;const d=Math.hypot(e.clientX-drag.x,e.clientY-drag.y);
+  if(!drag.on&&d>10){drag.on=true;ghost=drag.el.cloneNode(true);ghost.classList.add('ghost');ghost.style.pointerEvents='none';root.appendChild(ghost);drag.el.classList.add('lifting')}
+  if(drag.on){e.preventDefault();ghost.style.left=e.clientX+'px';ghost.style.top=e.clientY+'px';$$('.cell.hover,.skipzone.hover').forEach(x=>x.classList.remove('hover'));const t=hitTarget(e.clientX,e.clientY);if(t)t.classList.add('hover')}});
+const endDrag=e=>{if(!drag)return;const d=drag;drag=null;if(ghost){ghost.remove();ghost=null}
+  if(d.on){suppress=true;setTimeout(()=>suppress=false,0);const t=e&&e.clientX!=null?hitTarget(e.clientX,e.clientY):null;if(t)placeChip(d.id,t);else render()}};
+root.addEventListener('pointerup',endDrag);root.addEventListener('pointercancel',()=>{drag=null;if(ghost){ghost.remove();ghost=null}render()});
+function placeChip(id,target){if(target.dataset.skip){S.grid[id]={skip:true}}else{S.grid[id]={g:+target.dataset.g,e:+target.dataset.e}}S._sel=null;save();render()}
+/* round 4 */
+SCREENS.r4=function(){
+  const sub=S.sub||'values';S.sub=sub;
+  if(sub==='values'){
+    const needLeast=S.values.top.length===3;
+    main.innerHTML=head('Round 4 · 1 minute',needLeast?'And the one that matters <em class="s">least</em>?':'What matters <em class="s">most</em> in the work you’ll do one day?',needLeast?'Pick one from the rest.':'Pick three.')+
+    '<div class="vals">'+D.VALUES.map(v=>{const ti=S.values.top.indexOf(v.id),le=S.values.least===v.id;return '<button class="vcard'+(ti>-1?' top':'')+(le?' least':'')+'" data-val="'+v.id+'">'+(ti>-1?'<i>'+(ti+1)+'</i>':le?'<i>↓</i>':'')+esc(v.t)+'</button>'}).join('')+'</div>'+
+    nav('Next',S.values.top.length===3&&!!S.values.least,true);return}
+  main.innerHTML=head('Round 4 · 1 minute','Which problems would you love to help <em class="s">solve</em>?','Pick up to three.')+
+  '<div class="seg chips">'+D.PROBLEMS.map(p=>'<button class="pill" data-prob="'+p.id+'" aria-pressed="'+S.problems.includes(p.id)+'">'+p.t+'</button>').join('')+'</div><p class="count">'+S.problems.length+' of 3</p>'+nav('Next',S.problems.length>=1,true);
+};
+/* round 5 */
+SCREENS.r5=function(){
+  const list=PUZZLES[S.band];
+  if(S.step>=list.length){const tl=tiltScores();const nm={n:'number',w:'word',s:'shape'};
+    reveal('Your strongest kind of puzzle: '+nm[tl.order[0]]+'s.',['This isn’t a score, and nobody else sees it. It’s one clue among many about the subjects that may come most naturally to you.'],'Last round');return}
+  const p=list[S.step];S._t0=performance.now();
+  const opts=p.opt?p.opt():p.o.map(esc);
+  main.innerHTML=head('Round 5 · puzzle '+(S.step+1)+' of '+list.length,'No score here. <em class="s">Just notice</em> which feel easiest.','')+
+  '<div class="puzzle"><span class="tag">'+({n:'Numbers',w:'Words',s:'Shapes'})[p.k]+'</span><p class="pz-q">'+esc(p.q)+'</p>'+(p.fig?'<div class="pz-fig">'+p.fig()+'</div>':'')+
+  '<div class="pz-opts'+(p.opt?' visual':'')+'">'+opts.map((o,i)=>'<button class="pz-o" data-pz="'+i+'"><span class="k">'+'ABCD'[i]+'</span>'+o+'</button>').join('')+'</div>'+
+  '<button class="link" data-pz="-1">Skip this one</button></div>';
+};
+/* round 6 */
+SCREENS.r6=function(){
+  const n=S.next;const pills=(key,opts,multi)=>'<div class="seg">'+opts.map(o=>'<button class="pill" data-nx="'+key+'" data-v="'+o[0]+'" '+(multi?'data-multi="1"':'')+' aria-pressed="'+(multi?(n[key]||[]).includes(o[0]):n[key]===o[0])+'">'+o[1]+'</button>').join('')+'</div>';
+  const bands=[['90','90+'],['75','75–89'],['60','60–74'],['0','Below 60'],['skip','Prefer not to say']];
+  const where=[['india','India'],['abroad','Abroad'],['both','Both'],['unsure','Not sure yet']];
+  const fam=D.FAMILY.map(f=>[f.id,f.t]);
+  let h=head('Round 6 · 1 minute',S.band==='senior'?'Your <em class="s">next step</em>':'Next year’s <em class="s">choices</em>','All optional. They help us show what’s realistically open.');
+  if(S.band==='junior'){
+    const c11=D.SUBJECTS.filter(s=>s.c11).map(s=>[s.id,s.c11]);
+    h+='<div class="field"><label class="f-l">Which Class 11 subjects are you already considering?</label>'+pills('considering',c11,true)+'</div>';
+    if(S.board==='cbse')h+='<div class="field"><label class="f-l">Which Maths did you take in Class 10?</label>'+pills('mathsType',[['standard','Standard'],['basic','Basic'],['unsure','Not sure']])+'</div>';
+    h+='<div class="field"><label class="f-l">Will you keep Maths in Class 11?</label>'+pills('keepMaths',[['yes','Definitely'],['prob','Probably'],['unsure','Unsure'],['probnot','Probably not'],['no','No']])+'</div>';
+    h+='<div class="field"><label class="f-l">Your last exam, roughly</label>'+['Maths','Science','Social Science','English'].map(sj=>'<div class="mrow"><span>'+sj+'</span>'+pills('m_'+sj.replace(/\s/g,''),bands)+'</div>').join('')+'</div>';
+  }else{
+    h+='<div class="field"><label class="f-l">Where do you want to study?</label>'+pills('where',where)+'</div>';
+    h+='<div class="field"><label class="f-l">Which entrance tests are you considering?</label>'+pills('tests',[['jee','JEE'],['neet','NEET'],['cuet','CUET'],['clat','CLAT'],['ipmat','IPMAT'],['design','NID, NIFT or UCEED'],['iat','IISER IAT or NEST'],['sat','SAT or ACT'],['none','None yet']],true)+'</div>';
+    h+='<div class="field"><label class="f-l">Your last exam overall</label>'+pills('marks',bands)+'</div>';
+    h+='<div class="field"><label class="f-l">How do you like to learn? <small>Pick two</small></label>'+pills('learn',[['lectures','Lectures and exams'],['labs','Labs and projects'],['reading','Reading and writing'],['fieldwork','Fieldwork and people'],['building','Building and making']],true)+'</div>';
+    h+='<div class="field"><label class="f-l">Would you consider a degree that combines two fields?</label>'+pills('combine',[['yes','Yes'],['maybe','Maybe'],['no','No']])+'</div>';
+  }
+  if(S.band==='junior')h+='<div class="field"><label class="f-l">Where might you study after school?</label>'+pills('where',where)+'</div>';
+  h+='<div class="field"><label class="f-l">Is there a subject or career your family hopes you’ll choose?</label>'+pills('family',fam)+'<p class="hint">We’ll show how it lines up with your answers. No judgement either way.</p></div>';
+  main.innerHTML=h+nav('Next',true,true);
+};
+/* close */
+SCREENS.close=function(){
+  main.innerHTML=head('Almost done','Now, how sure are you about what to study <em class="s">next</em>?','Same question as the start. Answer for how you feel now.')+slider('c1','How sure are you now?',S.c1==null?S.c0:S.c1)+nav('See my results',true,true);
+};
+
+/* ═════════ results ═════════ */
+let R=null;
+SCREENS.result=function(){
+  R=compute();
+  const top=R.subj.slice(0,3),famId=S.next.family;const fam=D.FAMILY.find(f=>f.id===famId);
+  const considered=new Set((S.next.considering||[]).concat(S.current.concat(S.wish).flatMap(id=>Object.keys((D.SENIOR_SUBJECTS.find(x=>x.id===id)||{m:{}}).m))));
+  if(S.band==='junior')combos(R).best.set.forEach(x=>considered.add(x));
+  const wild=R.subj.slice(3,12).find(x=>!considered.has(x.id)&&x.s.fam!==top[0].s.fam)||R.subj.slice(3,12).find(x=>!considered.has(x.id))||R.subj[3];
+  const H=Object.entries(R.H).sort((a,b)=>b[1]-a[1]);
+  const topDom=Object.entries(R.dom.norm).sort((a,b)=>b[1]-a[1]);
+  const confTxt={high:'High confidence: your answers point clearly this way.',medium:'Medium confidence: a clear lead, with close runners-up.',low:'Your answers point several ways, which is common at your age. Try the top two subject pages before deciding.'}[R.confidence];
+  let h='<section class="res-hero"><div><span class="tag acc">Your result</span><h1 class="hero-h sm">Your strongest pull is towards <em class="s">'+esc(D.DOMAINS[topDom[0][0]].name.toLowerCase())+'</em> and '+esc(D.DOMAINS[topDom[1][0]].name.toLowerCase())+'.</h1><p class="lede">'+confTxt+'</p></div>'+
+   '<div class="cert"><span class="f-l">How sure you are</span><div class="cert-line"><i style="left:'+(S.c0==null?50:S.c0)+'%" class="b" title="Before"></i><i style="left:'+(S.c1==null?50:S.c1)+'%" class="a" title="After"></i></div><div class="range-k"><span>Not sure</span><span>Very sure</span></div><p class="hint"><b class="dotb"></b> before · <b class="dota"></b> now</p></div></section>';
+  /* top three */
+  h+='<section class="band-in"><h2 class="sec-h">'+(S.band==='senior'?'Subjects that fit you best':'Your top three subjects')+'</h2><div class="top3">'+top.map((x,i)=>{
+    const b1=because(x.id),b2=because2(x.id,R);
+    return '<article class="mcard"><div class="m-top"><span class="m-n">0'+(i+1)+'</span><span class="m-pct">'+Math.round(x.M)+'<small>% match</small></span></div><h3>'+esc(x.s.t)+'</h3><p class="m-line">'+esc(x.s.line)+'</p>'+
+    '<ul class="m-why">'+(b1?'<li>'+esc(b1)+'</li>':'')+(b2?'<li>'+esc(b2)+'</li>':'')+'</ul>'+
+    (S.band==='junior'&&x.s.maths==='needs'&&(S.next.keepMaths==='no'||S.next.keepMaths==='probnot'||S.next.mathsType==='basic')?'<p class="m-flag">Needs Mathematics in Class 11. '+(S.next.mathsType==='basic'?'With Basic Maths in Class 10, CBSE normally allows only Applied Maths; it has relaxed this each year with the principal’s approval. Check with your school.':'Think twice before dropping it.')+'</p>':'')+
+    '<a class="btn small" href="'+esc(subjectUrl(x.id))+'" data-go="'+x.id+'">Explore '+esc(x.s.t)+' →</a></article>'}).join('')+'</div>'+
+    '<div class="wild"><span class="tag acc">One you might not have considered</span><h3>'+esc(wild.s.t)+' <small>'+Math.round(wild.M)+'% match</small></h3><p>'+esc(because(wild.id)||wild.s.line)+' It sits just outside your top three, and it’s not one you said you were considering.</p><a class="link" href="'+esc(subjectUrl(wild.id))+'" data-go="'+wild.id+'">Take a look →</a></div></section>';
+  /* junior combos / senior directions */
+  if(S.band==='junior'){
+    const C=combos(R);
+    const card=(o,label,line)=>{const L=ledger(o.set,R);const nm=s=>SUB[s].c11;
+      return '<article class="combo"><span class="tag'+(label==='Best fit'?' acc':'')+'">'+label+'</span><p class="c-line">'+line+'</p><ol class="c-subj"><li>English</li>'+o.set.map(s=>'<li>'+esc(nm(s))+'</li>').join('')+'</ol>'+
+      '<div class="ledger"><span class="f-l">What it keeps open, for your top directions</span>'+L.map(l=>'<div class="lg '+l.st+'"><i></i><span>'+esc(l.cl.c.t)+'</span><b>'+({open:'Open',flag:'Condition',closed:'Closed'})[l.st]+'</b></div>').join('')+'</div>'+
+      (o.set.includes('mathematics')&&S.next.mathsType==='basic'?'<p class="m-flag">Includes Mathematics, which needs Standard Maths in Class 10 or your principal’s approval.</p>':'')+'</article>'};
+    h+='<section class="band-in"><h2 class="sec-h">Your Class 11 combinations</h2><p class="q-lede">Two good options, built from your matches and your board’s rules. Compare what each keeps open before you decide.</p><div class="combos">'+
+      card(C.best,'Best fit','The four subjects that match you most closely, plus English.')+card(C.keep,'Keeps the most doors open','Still close to you, and open to more degree directions later.')+'</div></section>';
+  }else{
+    const set=hasSet();const top3=R.clusters.slice(0,3);const bestOpen=R.clusters.find(c=>status(c.c,set)==='open');
+    const dcard=(x,i)=>{const st=status(x.c,set);
+      return '<article class="dcard"><div class="m-top"><span class="m-n">0'+(i+1)+'</span><span class="st '+st+'">'+STATUS_TXT[st]+'</span></div><h3>'+esc(x.c.t)+'</h3>'+
+      (st==='flag'?'<p class="m-flag">'+esc(x.c.flagNote||'Some degrees in this field need an extra subject.')+'</p>':'')+
+      (st==='closed'?'<p class="m-flag">Needs '+x.c.req.filter(r=>!set.has(r)).map(r=>SUB[r].t).join(' and ')+'. Some universities abroad offer a foundation year that adds it; ask your counsellor.</p>':'')+
+      '<dl class="d-dl"><div><dt>In India</dt><dd>'+esc(x.c.india)+'</dd></div><div><dt>Abroad</dt><dd>'+esc(x.c.abroad)+'</dd></div><div><dt>Tests</dt><dd>'+esc(x.c.tests)+'</dd></div></dl>'+
+      '<div class="d-links">'+x.c.pages.slice(0,2).map(p=>'<a class="link" href="'+esc(subjectUrl(p))+'" data-go="'+p+'">Options after '+esc(SUB[p].t)+' →</a>').join('')+'</div></article>'};
+    h+='<section class="band-in"><h2 class="sec-h">Your top three degree directions</h2><div class="top3">'+top3.map(dcard).join('')+'</div>'+
+      (bestOpen&&!top3.some(x=>x.id===bestOpen.id)&&!top3.some(x=>status(x.c,set)==='open')?'<div class="wild"><span class="tag acc">Your best direction that’s open right now</span><h3>'+esc(bestOpen.c.t)+'</h3><p>'+esc(bestOpen.c.india)+'</p></div>':'')+'</section>';
+  }
+  /* family hope */
+  if(fam&&fam.subj){
+    const rank=S.band==='senior'?R.clusters.find(c=>c.id===fam.cl).rank:R.byId[fam.subj].rank,of=S.band==='senior'?R.clusters.length:R.subj.length;
+    const what=S.band==='senior'?CL[fam.cl].t:SUB[fam.subj].t;
+    const line=rank<=3?'Good overlap: '+what+' is in your top three.':rank<=8?what+' ranks '+rank+' of '+of+' in your answers. Worth exploring together: read its page side by side with your top match.':what+' ranks '+rank+' of '+of+' in your answers. That doesn’t rule it out. It’s a good conversation to have at home, with this report in hand.';
+    h+='<section class="band-in"><div class="family"><span class="tag">Your family’s hope: '+esc(fam.t)+'</span><p>'+esc(line)+'</p></div></section>';
+  }
+  /* shape */
+  const radar=hex(R.H);
+  h+='<section class="band-in shape"><h2 class="sec-h">Your shape</h2><div class="shape-g"><div class="shape-hex">'+radar+'<p><b>'+esc(D.HOLLAND[H[0][0]].name)+'</b> and <b>'+esc(D.HOLLAND[H[1][0]].name)+'</b>. '+esc(D.HOLLAND[H[0][0]].line)+' '+esc(D.HOLLAND[H[1][0]].line)+'</p></div>'+
+   '<div><span class="f-l">Your interests, strongest first</span><div class="dbars">'+topDom.slice(0,7).map(([d,v])=>'<div class="db"><span>'+esc(D.DOMAINS[d].name)+'</span><i><b style="width:'+v.toFixed(0)+'%"></b></i></div>').join('')+'</div>'+
+   '<div class="mini"><div><span class="f-l">Puzzles</span><p>'+esc({n:'Numbers',w:'Words',s:'Shapes'}[R.tl.order[0]])+' came most naturally.</p></div><div><span class="f-l">You value</span><p>'+S.values.top.map(v=>esc(D.VALUES.find(x=>x.id===v).t)).join(' · ')+'</p></div><div><span class="f-l">Problems you’d solve</span><p>'+S.problems.map(p=>esc(D.PROBLEMS.find(x=>x.id===p).t)).join(' · ')+'</p></div></div></div></div></section>';
+  /* report + email + next steps */
+  h+='<section class="band-in report"><div class="rep-l"><h2 class="sec-h">Your report</h2><p class="q-lede">Four pages to talk through at home or with a counsellor. Your name is printed on it only if you type it, and it never leaves this device.</p>'+
+   '<label class="f-l" for="capf-name">Name for your report <small>Optional</small></label><input id="capf-name" type="text" maxlength="40" placeholder="Your first name">'+
+   '<button class="btn accent" data-act="pdf">Download my report · PDF</button></div>'+
+   '<div class="rep-r"><h3>Email me a copy <small>Optional</small></h3><p class="hint">Only if you’d like it sent. We use your email to send this report and nothing else unless you ask.</p>'+
+   '<input id="capf-email" type="email" placeholder="you@example.com" autocomplete="email"><label class="consent"><input type="checkbox" id="capf-consent"> I’m 18 or over, or my parent or guardian agrees to College Access Program emailing me this report.</label>'+
+   '<button class="btn outline" data-act="email">Email my report</button><p class="hint" id="capf-email-msg" aria-live="polite"></p></div></section>'+
+   '<section class="band-in nextsteps"><h2 class="sec-h">Your next steps</h2><ol><li><span><b>Read your top subject page.</b> Start with <a href="'+esc(subjectUrl(top[0].id))+'" data-go="'+top[0].id+'">Options after '+esc(top[0].s.t)+'</a>, then your other two.</span></li><li><span><b>Try its 30-day plan.</b> A month of reading, watching and doing tells you more than any assessment.</span></li><li><span><b>Come to a live session.</b> <a href="'+esc(CFG.sessionsUrl)+'" data-track-session="finder">See upcoming sessions</a> and bring the questions this raised.</span></li></ol>'+
+   '<button class="link" data-act="restart">Take the assessment again</button></section>';
+  main.innerHTML=h;
+};
+function hex(H){const order=['R','I','A','S','E','C'],cx=120,cy=112,r=84;
+  const pt=(i,v)=>{const a=-Math.PI/2+i*Math.PI/3;return [cx+Math.cos(a)*r*v,cy+Math.sin(a)*r*v]};
+  const ring=v=>order.map((_,i)=>pt(i,v).map(n=>n.toFixed(1)).join(',')).join(' ');
+  const shape=order.map((t,i)=>pt(i,Math.max(.06,H[t]/100)).map(n=>n.toFixed(1)).join(',')).join(' ');
+  return '<svg viewBox="0 0 240 228" class="hex" role="img" aria-label="Your interest shape across six types">'+[1,.66,.33].map(v=>'<polygon points="'+ring(v)+'" class="h-ring"/>').join('')+'<polygon points="'+shape+'" class="h-shape"/>'+
+  order.map((t,i)=>{const p=pt(i,1.22);return '<text x="'+p[0].toFixed(0)+'" y="'+(p[1]+4).toFixed(0)+'" text-anchor="middle" class="h-l">'+D.HOLLAND[t].name+'</text>'}).join('')+'</svg>'}
+
+/* ═════════ PDF (jsPDF API, also served by the plugin's bundled engine) ═════════ */
+function loadJsPDF(){return new Promise((res,rej)=>{if(window.jspdf)return res();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';s.onload=()=>res();s.onerror=()=>rej(new Error('pdf'));document.head.appendChild(s)})}
+const plain=s=>String(s).replace(/[—–]/g,'-').replace(/[‘’]/g,"'").replace(/[“”]/g,'"').replace(/→/g,'->').replace(/₹/g,'Rs ').replace(/·/g,'|');
+function buildPDF(name){
+  const {jsPDF}=window.jspdf;const doc=new jsPDF('p','mm','a4');const W=210,M=16,TW=W-2*M;
+  const navy=[36,50,92],acc=[180,97,60],ok=[43,118,81],ink=[29,37,66],mut=[89,99,127],line=[183,194,216],pale=[219,230,243],cream=[247,244,236];
+  let page=1,y=0;
+  const foot=()=>{doc.setDrawColor(...line);doc.setLineWidth(.3);doc.line(M,284,W-M,284);doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(...mut);doc.text('COLLEGE ACCESS PROGRAM | SUBJECT FINDER | A STARTING POINT, NOT A VERDICT',M,289);doc.text('PAGE '+page+' OF 4',W-M,289,{align:'right'})};
+  const header=(k,t)=>{doc.setFillColor(...navy);doc.rect(0,0,W,34,'F');doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(242,184,152);doc.text(k.toUpperCase(),M,9);doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(219,230,243);doc.text('College Access Program',W-M,9,{align:'right'});doc.setFont('helvetica','bold');doc.setFontSize(18);doc.setTextColor(255,255,255);doc.text(plain(t),M,27);y=46};
+  const para=(t,size,col,gap)=>{doc.setFont('helvetica','normal');doc.setFontSize(size||10);doc.setTextColor(...(col||ink));const L=doc.splitTextToSize(plain(t),TW);doc.text(L,M,y);y+=L.length*(size||10)*.42+(gap==null?3:gap)};
+  const label=t=>{doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...acc);doc.text(plain(t).toUpperCase(),M,y);y+=5};
+  const np=()=>{foot();doc.addPage();page++};
+  const dt=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const top=R.subj.slice(0,3);
+  /* page 1 */
+  header('Subject Finder report','Your result');
+  para((name?name+' | ':'')+'Class '+S.cls+(S.board?' | '+S.board.toUpperCase():'')+(S.school&&S.school.name?' | '+S.school.name:'')+' | '+dt,9,mut,6);
+  const topDom=Object.entries(R.dom.norm).sort((a,b)=>b[1]-a[1]);
+  doc.setFont('helvetica','bold');doc.setFontSize(15);doc.setTextColor(...navy);const hl=doc.splitTextToSize('Your strongest pull is towards '+D.DOMAINS[topDom[0][0]].name.toLowerCase()+' and '+D.DOMAINS[topDom[1][0]].name.toLowerCase()+'.',TW);doc.text(hl,M,y);y+=hl.length*6.4+2;
+  para('Confidence: '+R.confidence+'.',9.5,mut,6);
+  label(S.band==='senior'?'Subjects that fit you best':'Your top three subjects');
+  top.forEach((x,i)=>{doc.setFillColor(...cream);doc.rect(M,y-4,TW,24,'F');doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...navy);doc.text((i+1)+'. '+plain(x.s.t),M+4,y+2);doc.setTextColor(...acc);doc.text(Math.round(x.M)+'% match',W-M-4,y+2,{align:'right'});
+    doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...ink);const L=doc.splitTextToSize(plain([because(x.id),because2(x.id,R)].filter(Boolean).join(' ')),TW-8);doc.text(L.slice(0,3),M+4,y+8);y+=28});
+  const considered=new Set((S.next.considering||[]).concat(S.current.concat(S.wish).flatMap(id=>Object.keys((D.SENIOR_SUBJECTS.find(x=>x.id===id)||{m:{}}).m))));if(S.band==='junior')combos(R).best.set.forEach(x=>considered.add(x));const wild=R.subj.slice(3,12).find(x=>!considered.has(x.id)&&x.s.fam!==top[0].s.fam)||R.subj[3];
+  label('One you might not have considered');para(wild.s.t+' ('+Math.round(wild.M)+'% match). '+wild.s.line+'.',10,ink,5);
+  label('How sure you are');para('Before: '+(S.c0==null?'-':S.c0)+' / 100. After: '+(S.c1==null?'-':S.c1)+' / 100.',10,ink,4);
+  np();
+  /* page 2 */
+  header('Your shape','How you think and what you value');
+  const H=Object.entries(R.H).sort((a,b)=>b[1]-a[1]);
+  /* hexagon from lines */
+  const order=['R','I','A','S','E','C'],cx=M+38,cy=y+34,rr=28;const pt=(i,v)=>{const a=-Math.PI/2+i*Math.PI/3;return [cx+Math.cos(a)*rr*v,cy+Math.sin(a)*rr*v]};
+  doc.setDrawColor(...line);doc.setLineWidth(.25);[1,.66,.33].forEach(v=>{for(let i=0;i<6;i++){const a=pt(i,v),b=pt((i+1)%6,v);doc.line(a[0],a[1],b[0],b[1])}});
+  doc.setDrawColor(...acc);doc.setLineWidth(.9);for(let i=0;i<6;i++){const a=pt(i,Math.max(.06,R.H[order[i]]/100)),b=pt((i+1)%6,Math.max(.06,R.H[order[(i+1)%6]]/100));doc.line(a[0],a[1],b[0],b[1])}
+  doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(...navy);order.forEach((t,i)=>{const p=pt(i,1.28);doc.text(D.HOLLAND[t].name,p[0],p[1]+1,{align:'center'})});
+  const x2=M+86;doc.setFont('helvetica','bold');doc.setFontSize(12);doc.setTextColor(...navy);doc.text(plain(D.HOLLAND[H[0][0]].name+' and '+D.HOLLAND[H[1][0]].name),x2,y+8);
+  doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(...ink);const hl2=doc.splitTextToSize(plain(D.HOLLAND[H[0][0]].line+' '+D.HOLLAND[H[1][0]].line),W-M-x2);doc.text(hl2,x2,y+15);
+  y+=78;label('Your interests, strongest first');
+  topDom.slice(0,8).forEach(([d,v])=>{doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(...ink);doc.text(plain(D.DOMAINS[d].name),M,y);doc.setFillColor(...pale);doc.rect(M+72,y-3,100,3.6,'F');doc.setFillColor(...acc);doc.rect(M+72,y-3,Math.max(1,v),3.6,'F');y+=7});
+  y+=4;label('Puzzles');para({n:'Number',w:'Word',s:'Shape'}[R.tl.order[0]]+' puzzles came most naturally to you. This is a clue about style, not a score.',10,ink,5);
+  label('What you value');para(S.values.top.map(v=>D.VALUES.find(x=>x.id===v).t).join(' | '),10,ink,5);
+  label('Problems you would like to solve');para(S.problems.map(p=>D.PROBLEMS.find(x=>x.id===p).t).join(' | '),10,ink,5);
+  np();
+  /* page 3 */
+  if(S.band==='junior'){
+    header('Your choices','Your Class 11 combinations');const C=combos(R);
+    [[C.best,'Best fit'],[C.keep,'Keeps the most doors open']].forEach(([o,lab])=>{label(lab);para('English, '+o.set.map(s=>SUB[s].c11).join(', '),11,navy,3);
+      ledger(o.set,R).forEach(l=>{const col=l.st==='open'?ok:l.st==='flag'?acc:mut;doc.setFillColor(...col);doc.rect(M,y-2.6,2.6,2.6,'F');doc.setFont('helvetica','normal');doc.setFontSize(9.5);doc.setTextColor(...ink);doc.text(plain(l.cl.c.t),M+5,y);doc.setTextColor(...col);doc.text(({open:'Open',flag:'Condition',closed:'Closed'})[l.st],W-M,y,{align:'right'});y+=6});y+=6});
+    if(S.next.mathsType==='basic')para('About Maths: with Basic Maths in Class 10, CBSE normally allows only Applied Mathematics in Class 11. It has relaxed this each year, including 2025-26, with the principal\'s approval. Check with your school.',9.5,mut,4);
+  }else{
+    header('Your choices','Your degree directions');const set=hasSet();
+    R.clusters.slice(0,4).forEach((x,i)=>{const st=status(x.c,set);label((i+1)+'. '+x.c.t+' | '+STATUS_TXT[st]);
+      if(st==='flag')para(x.c.flagNote||'',9.5,acc,2);if(st==='closed')para('Needs '+x.c.req.filter(r=>!set.has(r)).map(r=>SUB[r].t).join(' and ')+'. Ask your counsellor about foundation-year routes.',9.5,acc,2);
+      para('In India: '+x.c.india+'. Abroad: '+x.c.abroad+'. Tests: '+x.c.tests+'.',9.5,ink,6)});
+  }
+  if(S.next.family&&D.FAMILY.find(f=>f.id===S.next.family).subj){const f=D.FAMILY.find(q=>q.id===S.next.family);label('Your family\'s hope: '+f.t);
+    const rank=S.band==='senior'?R.clusters.find(c=>c.id===f.cl).rank:R.byId[f.subj].rank;para('It ranks '+rank+' of '+(S.band==='senior'?R.clusters.length:R.subj.length)+' in your answers. Use this report to talk it through together.',10,ink,4)}
+  np();
+  /* page 4 */
+  header('Your next 30 days','Turn this into evidence');
+  para('A month of reading, watching and doing tells you more than any assessment. Start here:',10.5,ink,6);
+  const base=(location&&location.origin&&location.origin!=='null'?location.origin:'https://collegeaccessprogram.in');
+  top.forEach((x,i)=>{label((i+1)+'. Options after '+x.s.t);doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(...ok);const full=/^https?:/.test(subjectUrl(x.id))?subjectUrl(x.id):base+subjectUrl(x.id);doc.textWithLink(full.replace(/^https?:\/\//,''),M,y,{url:full});y+=6;para('Read the page, try two things from its 30-day plan, and note how the month feels.',9.5,ink,5)});
+  label('Come to a live session');para('Bring the questions this raised. See upcoming sessions on the College Access Program website.',10,ink,8);
+  label('A question for your counsellor');doc.setDrawColor(...line);for(let i=0;i<4;i++){doc.line(M,y+i*9,W-M,y+i*9)}y+=40;
+  para('This report is a starting point, not a verdict. It is based on your answers on '+dt+'. Interests change as you try things; take it again in six months and compare.',9,mut,0);
+  foot();
+  doc.save('CAP-Subject-Finder-report.pdf');
+}
+
+/* ═════════ events ═════════ */
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function payload(){const top=R.subj.slice(0,3).map(x=>({id:x.id,match:Math.round(x.M)}));
+  return {type:'result',id:S.id,class:S.cls,band:S.band,board:S.board,school:S.school,certainty:{before:S.c0,after:S.c1},explored:S.explored,
+    top_subjects:top,top_directions:S.band==='senior'?R.clusters.slice(0,3).map(c=>c.id):null,confidence:R.confidence,flags:R.flags,
+    domains:Object.fromEntries(Object.entries(R.dom.norm).map(([k,v])=>[k,Math.round(v)])),holland:Object.fromEntries(Object.entries(R.H).map(([k,v])=>[k,Math.round(v)])),
+    puzzles:R.tl.acc,values:S.values,problems:S.problems,next:S.next,answers:{city:S.city,pairs:S.pairs,grid:S.grid,useful:S.useful,current:S.current,wish:S.wish,puzzles:S.puzzles},
+    started:S.startedAt,completed:S.doneAt}}
+root.addEventListener('input',e=>{const sl=e.target.closest('[data-slider]');if(sl){S[sl.dataset.slider]=+sl.value;save()}});
+root.addEventListener('click',e=>{
+  if(suppress)return;
+  if(S.screen==='r3'&&S.sub==='grid'){const ch=e.target.closest('.chip');const cell=e.target.closest('.cell,.skipzone');
+    if(ch&&(!S._sel||S._sel===ch.dataset.chip||!cell)){S._sel=S._sel===ch.dataset.chip?null:ch.dataset.chip;return render()}
+    if(cell&&S._sel){return placeChip(S._sel,cell)}}
+  const t=e.target.closest('button,a');if(!t||!root.contains(t))return;
+  const act=t.dataset.act;
+  if(t.dataset.go){track('subject_opened',{subject:t.dataset.go,from:'finder_result'})}
+  if(t.dataset.trackSession){track('session_clicked',{from:'finder'})}
+  if(act==='start'){S=fresh();S.startedAt=new Date().toISOString();S.school=preSchool();go('r0');track('finder_started',{school:S.school&&S.school.name||null});return}
+  if(act==='resume'){S=saved;render();track('finder_resumed',{screen:S.screen});return}
+  if(act==='restart'){try{localStorage.removeItem(CFG.storageKey)}catch(_){}S=fresh();S.startedAt=new Date().toISOString();S.school=preSchool();go('r0');track('finder_restarted');return}
+  if(act==='addschool'){const n=$('#capf-add-name').value.trim(),c=$('#capf-add-city').value.trim();if(n.length<3)return;S.school={name:n,city:c,added:true};save();post(CFG.addSchoolEndpoint,{name:n,city:c});track('school_added',{name:n,city:c});render();return}
+  if(act==='pdf'){const b=t;b.disabled=true;b.textContent='Preparing…';const nm=($('#capf-name').value||'').trim().slice(0,40);
+    loadJsPDF().then(()=>{buildPDF(nm);b.textContent='Downloaded ✓';track('report_downloaded',{band:S.band,confidence:R.confidence})}).catch(()=>{b.textContent='Download failed. Try again.'}).finally(()=>setTimeout(()=>{b.disabled=false;b.textContent='Download my report · PDF'},2500));return}
+  if(act==='email'){const em=$('#capf-email').value.trim(),ok=$('#capf-consent').checked,msg=$('#capf-email-msg');
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)){msg.textContent='Please check the email address.';return}
+    if(!ok){msg.textContent='Please tick the consent box first.';return}
+    track('report_email_requested',{band:S.band});
+    if(!CFG.submitEndpoint){msg.textContent='Preview mode: email sending is switched on when this goes live on the CAP website.';return}
+    msg.textContent='Sending…';post(CFG.submitEndpoint,{type:'email_report',id:S.id,email:em,consent:true,result:payload()}).then(r=>{msg.textContent=r?'Sent. Check your inbox in a few minutes.':'We couldn’t send it just now. Please download the PDF instead.'});return}
+  /* round-specific */
+  const scr=S.screen;
+  if(scr==='r0'){
+    if(t.dataset.cls){S.cls=+t.dataset.cls;S.band=S.cls<=10?'junior':'senior';save();render();return}
+    if(t.dataset.board){S.board=t.dataset.board;save();render();return}
+    if(t.dataset.exp){const v=t.dataset.exp;if(v==='nothing')S.explored=S.explored.includes(v)?[]:['nothing'];else{S.explored=S.explored.filter(x=>x!=='nothing');S.explored=S.explored.includes(v)?S.explored.filter(x=>x!==v):S.explored.concat(v)}save();render();return}
+  }
+  if(scr==='r1'&&t.dataset.city){const id=t.dataset.city;if(S.city.includes(id))S.city=S.city.filter(x=>x!==id);else if(S.city.length<3)S.city=S.city.concat(id);save();render();return}
+  if(scr==='r2'){
+    if(t.dataset.side!=null&&S.step<24){const i=S.pairOrder[S.step];S.pairs[S.step]={i,c:+t.dataset.side,ms:Math.round(performance.now()-(S._t0||performance.now()))};S.step++;save();render();return}
+    if(act==='undo'&&S.step>0){S.step--;S.pairs[S.step]=null;save();render();return}
+  }
+  if(scr==='r3'){
+    if(t.dataset.cur){const v=t.dataset.cur;S.current=S.current.includes(v)?S.current.filter(x=>x!==v):S.current.concat(v);save();render();return}
+    if(t.dataset.use){const v=t.dataset.use;if(S.useful.includes(v))S.useful=S.useful.filter(x=>x!==v);else if(S.useful.length<3)S.useful=S.useful.concat(v);save();render();return}
+    if(t.dataset.wish){const v=t.dataset.wish;if(S.wish.includes(v))S.wish=S.wish.filter(x=>x!==v);else if(S.wish.length<2)S.wish=S.wish.concat(v);save();render();return}
+  }
+  if(scr==='r4'){
+    if(t.dataset.val){const v=t.dataset.val,tp=S.values.top;if(tp.includes(v)){S.values.top=tp.filter(x=>x!==v);S.values.least=null}else if(tp.length<3)S.values.top=tp.concat(v);else S.values.least=S.values.least===v?null:v;save();render();return}
+    if(t.dataset.prob){const v=t.dataset.prob;if(S.problems.includes(v))S.problems=S.problems.filter(x=>x!==v);else if(S.problems.length<3)S.problems=S.problems.concat(v);save();render();return}
+  }
+  if(scr==='r5'&&t.dataset.pz!=null){const list=PUZZLES[S.band],p=list[S.step],k=+t.dataset.pz;S.puzzles[S.step]={k:p.k,ok:k===p.a,ms:Math.round(performance.now()-(S._t0||performance.now())),skip:k<0};S.step++;save();render();return}
+  if(scr==='r6'&&t.dataset.nx){const key=t.dataset.nx,v=t.dataset.v;if(t.dataset.multi){const arr=S.next[key]||[];S.next[key]=arr.includes(v)?arr.filter(x=>x!==v):(key==='learn'&&arr.length>=2?arr.slice(1):arr).concat(v)}else S.next[key]=S.next[key]===v?null:v;save();render();return}
+  if(act==='next')return next();
+  if(act==='back')return back();
+});
+function next(){
+  const s=S.screen;
+  if(s==='intro')return go('r0');
+  if(s==='r0'){if(!S.cls)return;track('round_completed',{round:0,band:S.band,board:S.board});return go('r1')}
+  if(s==='r1'){if(S.sub==='reveal')return go('r2');if(S.city.length!==3)return;S.sub='reveal';save();track('round_completed',{round:1,picks:S.city.join(',')});return render()}
+  if(s==='r2'){track('round_completed',{round:2,cant_choose:S.pairs.filter(p=>p&&p.c===2).length});return go('r3')}
+  if(s==='r3'){
+    const order=S.band==='senior'?['current','grid','wish','reveal']:['grid','useful','reveal'];const i=order.indexOf(S.sub||order[0]);
+    if(S.sub==='reveal')return go('r4');
+    if(order[i+1]==='reveal')track('round_completed',{round:3});
+    S.sub=order[i+1];S._sel=null;save();return render()}
+  if(s==='r4'){if(S.sub==='values'||!S.sub){S.sub='problems';save();return render()}track('round_completed',{round:4});return go('r5')}
+  if(s==='r5'){track('round_completed',{round:5,correct:S.puzzles.filter(p=>p&&p.ok).length});return go('r6')}
+  if(s==='r6'){track('round_completed',{round:6});return go('close')}
+  if(s==='close'){S.doneAt=new Date().toISOString();go('result');
+    const p=payload();post(CFG.submitEndpoint,p);
+    track('finder_completed',{band:S.band,class:S.cls,board:S.board,school:S.school&&S.school.name||null,school_added:!!(S.school&&S.school.added),top:p.top_subjects.map(x=>x.id).join(','),directions:p.top_directions?p.top_directions.join(','):null,confidence:p.confidence,certainty_before:S.c0,certainty_after:S.c1});return}
+}
+function back(){
+  const s=S.screen;
+  if(s==='r3'){const order=S.band==='senior'?['current','grid','wish','reveal']:['grid','useful','reveal'];const i=order.indexOf(S.sub);if(i>0){S.sub=order[i-1];save();return render()}return go('r2')}
+  if(s==='r4'&&S.sub==='problems'){S.sub='values';save();return render()}
+  const prev={r0:'intro',r1:'r0',r2:'r1',r4:'r3',r5:'r4',r6:'r5',close:'r6'}[s];if(!prev)return;
+  S.screen=prev;S.sub=null;S.step=prev==='r2'?24:prev==='r5'?PUZZLES[S.band].length:0;save();render();
+}
+/* keyboard for pairs and puzzles */
+document.addEventListener('keydown',e=>{if(e.target&&/input|textarea/i.test(e.target.tagName))return;
+  if(S.screen==='r2'&&S.step<24){if(e.key==='1'||e.key.toLowerCase()==='a'||e.key==='ArrowLeft'){const b=$('.popt[data-side="0"]');b&&b.click()}if(e.key==='2'||e.key.toLowerCase()==='b'||e.key==='ArrowRight'){const b=$('.popt[data-side="1"]');b&&b.click()}}});
+/* school link: ?school=Name pre-fills */
+function preSchool(){try{const q=new URLSearchParams(location.search).get('school');return q?{name:q.slice(0,120),listed:true,fromLink:true}:null}catch(e){return null}}
+render();
+})();
+</script>
+</body></html>
